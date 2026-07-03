@@ -39,12 +39,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             flex-wrap: wrap;
+            gap: 8px;
         }
 
         .app-title {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 700;
             color: #b3405a;
             display: flex;
@@ -53,14 +54,45 @@
         }
 
         .app-title span {
-            font-size: 28px;
+            font-size: 26px;
+        }
+
+        .unit-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fceaf0;
+            padding: 4px 12px 4px 16px;
+            border-radius: 40px;
+            border: 1px solid #f5b8c8;
+        }
+
+        .unit-selector label {
+            font-size: 13px;
+            color: #8e3d52;
+            font-weight: 600;
+        }
+
+        .unit-selector select {
+            padding: 6px 8px;
+            border-radius: 30px;
+            border: 1px solid #f5b8c8;
+            background: white;
+            font-size: 15px;
+            font-weight: 600;
+            color: #b3405a;
+            outline: none;
+        }
+
+        .unit-selector select:focus {
+            border-color: #e86080;
         }
 
         .mode-badge {
             background: #f8ced9;
-            padding: 6px 14px;
+            padding: 4px 12px;
             border-radius: 40px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: #8e3d52;
         }
@@ -71,25 +103,25 @@
             align-items: center;
             background: rgba(255, 220, 230, 0.4);
             border-radius: 60px;
-            padding: 8px 16px 8px 20px;
-            margin-bottom: 22px;
+            padding: 6px 14px 6px 18px;
+            margin-bottom: 16px;
             border: 1px solid rgba(255, 200, 210, 0.5);
         }
 
         .counter {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             color: #7a3a4a;
         }
 
         .counter strong {
-            font-size: 26px;
+            font-size: 22px;
             color: #c44a6a;
         }
 
         .progress-bar-bg {
-            width: 100px;
-            height: 8px;
+            width: 80px;
+            height: 6px;
             background: #fad4de;
             border-radius: 20px;
             overflow: hidden;
@@ -105,13 +137,13 @@
 
         .word-card {
             background: white;
-            border-radius: 32px;
-            padding: 28px 16px 20px;
-            margin-bottom: 18px;
+            border-radius: 28px;
+            padding: 24px 16px 18px;
+            margin-bottom: 14px;
             box-shadow: 0 6px 24px rgba(255, 100, 130, 0.10);
             border: 1px solid rgba(255, 180, 200, 0.3);
             text-align: center;
-            min-height: 160px;
+            min-height: 140px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -120,7 +152,7 @@
         }
 
         .word-en {
-            font-size: 38px;
+            font-size: 34px;
             font-weight: 700;
             color: #3d202a;
             letter-spacing: 1px;
@@ -128,21 +160,52 @@
         }
 
         .word-phonetic {
-            font-size: 20px;
+            font-size: 18px;
             color: #b06a7a;
-            margin-top: 6px;
+            margin-top: 4px;
             font-family: 'Times New Roman', serif;
         }
 
         .word-zh {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 500;
             color: #5a3340;
-            margin-top: 10px;
+            margin-top: 8px;
             background: #fef0f3;
-            padding: 4px 18px;
+            padding: 4px 16px;
             border-radius: 40px;
             display: inline-block;
+        }
+
+        .word-example {
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: #f8f0f5;
+            border-radius: 16px;
+            border-left: 4px solid #e86080;
+            text-align: left;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .word-example .en {
+            font-size: 15px;
+            color: #3d202a;
+            font-weight: 500;
+        }
+
+        .word-example .zh {
+            font-size: 14px;
+            color: #b06a7a;
+            margin-top: 2px;
+        }
+
+        .word-example .label {
+            font-size: 12px;
+            color: #c08a9a;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: block;
         }
 
         .dictation-hidden .word-en {
@@ -154,29 +217,32 @@
         .dictation-hidden .word-zh {
             display: none !important;
         }
+        .dictation-hidden .word-example {
+            display: none !important;
+        }
         .dictation-hidden .dictation-placeholder {
             display: block !important;
         }
 
         .dictation-placeholder {
             display: none;
-            font-size: 22px;
+            font-size: 20px;
             color: #b06a7a;
-            padding: 20px 0;
+            padding: 16px 0;
         }
         .dictation-placeholder .big-icon {
-            font-size: 48px;
+            font-size: 40px;
             display: block;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
         .dictation-placeholder .hint {
-            font-size: 16px;
+            font-size: 15px;
             color: #c08a9a;
         }
         .dictation-placeholder .progress-text {
             font-size: 14px;
             color: #d4a0b0;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .learn-mode .word-en {
@@ -188,6 +254,9 @@
         .learn-mode .word-zh {
             display: inline-block !important;
         }
+        .learn-mode .word-example {
+            display: block !important;
+        }
         .learn-mode .dictation-placeholder {
             display: none !important;
         }
@@ -195,16 +264,16 @@
         .action-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin: 16px 0 12px;
+            gap: 8px;
+            margin: 12px 0 10px;
         }
 
         .btn {
             border: none;
             background: white;
-            padding: 14px 6px;
+            padding: 12px 6px;
             border-radius: 60px;
-            font-size: 17px;
+            font-size: 15px;
             font-weight: 600;
             color: #4d2e38;
             box-shadow: 0 4px 12px rgba(255, 130, 160, 0.15);
@@ -214,7 +283,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 5px;
             touch-action: manipulation;
         }
 
@@ -260,11 +329,9 @@
         .btn-full {
             grid-column: span 2;
         }
-
-        .btn-danger {
-            background: #d94f6a;
-            color: white;
-            border: none;
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 13px;
         }
 
         .btn:disabled {
@@ -277,15 +344,15 @@
             background: #fad8e0;
             border-radius: 60px;
             padding: 4px;
-            margin: 6px 0 16px;
+            margin: 4px 0 12px;
             border: 1px solid rgba(255, 200, 215, 0.4);
         }
 
         .mode-switch .btn {
             flex: 1;
             border-radius: 40px;
-            padding: 10px 6px;
-            font-size: 15px;
+            padding: 8px 6px;
+            font-size: 14px;
             background: transparent;
             border: none;
             box-shadow: none;
@@ -300,51 +367,53 @@
         }
 
         .camera-area {
-            margin: 14px 0 12px;
-            border-radius: 28px;
+            margin: 12px 0 10px;
+            border-radius: 24px;
             overflow: hidden;
             background: #fceaf0;
             border: 2px dashed #f5b8c8;
-            padding: 12px;
+            padding: 10px;
             text-align: center;
         }
 
         .camera-area video,
         .camera-area img {
             width: 100%;
-            max-height: 220px;
+            max-height: 180px;
             object-fit: cover;
-            border-radius: 20px;
+            border-radius: 16px;
             background: #1a1114;
         }
 
         .camera-area .placeholder {
-            padding: 24px 10px;
+            padding: 18px 10px;
             color: #b06a7a;
-            font-size: 15px;
+            font-size: 14px;
         }
 
         .camera-actions {
             display: flex;
-            gap: 8px;
-            margin-top: 10px;
+            gap: 6px;
+            margin-top: 8px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .camera-actions .btn {
             flex: 1;
-            min-width: 80px;
-            padding: 10px 8px;
-            font-size: 14px;
+            min-width: 70px;
+            padding: 8px 6px;
+            font-size: 13px;
         }
 
         .ocr-result {
             background: white;
             border-radius: 20px;
-            padding: 12px 16px;
-            margin-top: 12px;
+            padding: 10px 14px;
+            margin-top: 10px;
             border: 1px solid #f8ced9;
+            max-height: 320px;
+            overflow-y: auto;
         }
 
         .ocr-result label {
@@ -358,9 +427,10 @@
         .ocr-word-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 0;
+            gap: 6px;
+            padding: 6px 0;
             border-bottom: 1px solid #f5e0e6;
+            font-size: 14px;
         }
 
         .ocr-word-item:last-child {
@@ -368,20 +438,40 @@
         }
 
         .ocr-word-item .index {
-            font-size: 14px;
+            font-size: 13px;
             color: #b06a7a;
-            min-width: 30px;
+            min-width: 28px;
             font-weight: 600;
+        }
+
+        .ocr-word-item .word-en {
+            font-size: 15px;
+            font-weight: 600;
+            color: #3d202a;
+            min-width: 70px;
+            text-align: left;
+            display: block !important;
+        }
+
+        .ocr-word-item .word-zh {
+            font-size: 12px;
+            color: #b06a7a;
+            min-width: 40px;
+            background: none;
+            padding: 0;
+            margin: 0;
+            display: inline-block !important;
         }
 
         .ocr-word-item input {
             flex: 1;
-            padding: 8px 12px;
+            padding: 4px 10px;
             border-radius: 30px;
             border: 1px solid #f5b8c8;
-            font-size: 16px;
+            font-size: 14px;
             background: #fef8fa;
             outline: none;
+            min-width: 60px;
         }
 
         .ocr-word-item input:focus {
@@ -390,32 +480,33 @@
         }
 
         .ocr-word-item .status {
-            font-size: 20px;
-            min-width: 30px;
+            font-size: 16px;
+            min-width: 24px;
             text-align: center;
         }
 
-        .check-result-batch {
-            margin-top: 12px;
-            padding: 12px 16px;
-            border-radius: 20px;
+        .batch-status {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 16px;
             background: #f8f0f2;
             text-align: center;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 500;
             color: #5a3340;
         }
 
-        .check-result-batch .btn {
-            margin-top: 8px;
-            padding: 10px 20px;
-            font-size: 15px;
+        .batch-status .btn {
+            margin-top: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
         }
 
         .result-box {
-            margin-top: 16px;
+            margin-top: 14px;
             background: white;
-            border-radius: 28px;
-            padding: 16px 18px;
+            border-radius: 24px;
+            padding: 14px 16px;
             border: 2px solid #f8ced9;
         }
 
@@ -423,9 +514,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            padding: 6px 0;
             border-bottom: 1px solid #f5e0e6;
-            font-size: 16px;
+            font-size: 15px;
         }
 
         .result-item:last-child {
@@ -434,51 +525,51 @@
 
         .result-stats {
             text-align: center;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
-            padding: 10px 0 4px;
+            padding: 8px 0 4px;
             color: #3d202a;
         }
 
         .error-list {
-            margin-top: 14px;
+            margin-top: 12px;
             background: #fff5f7;
-            border-radius: 24px;
-            padding: 12px 16px;
+            border-radius: 20px;
+            padding: 10px 14px;
             border: 1px solid #f8ced9;
         }
 
         .error-list h4 {
             color: #b3405a;
-            font-size: 15px;
-            margin-bottom: 6px;
+            font-size: 14px;
+            margin-bottom: 4px;
         }
 
         .error-tag {
             display: inline-block;
             background: #f8ced9;
-            padding: 4px 14px;
+            padding: 3px 12px;
             border-radius: 40px;
-            margin: 4px 6px 4px 0;
-            font-size: 15px;
+            margin: 3px 5px 3px 0;
+            font-size: 14px;
             color: #6a3342;
         }
 
         .add-word-area {
-            margin-top: 20px;
+            margin-top: 16px;
             background: rgba(255, 240, 245, 0.6);
-            border-radius: 28px;
-            padding: 14px 16px;
+            border-radius: 24px;
+            padding: 12px 14px;
             border: 1px solid #fad4de;
         }
 
         .add-word-area input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 10px 14px;
             border-radius: 40px;
             border: 1px solid #f5b8c8;
-            font-size: 16px;
-            margin-bottom: 8px;
+            font-size: 15px;
+            margin-bottom: 6px;
             background: white;
             outline: none;
         }
@@ -489,14 +580,14 @@
         }
 
         .add-word-area .btn {
-            padding: 10px;
-            font-size: 15px;
+            padding: 8px;
+            font-size: 14px;
         }
 
         .small-note {
-            font-size: 12px;
+            font-size: 11px;
             color: #b06a7a;
-            margin-top: 6px;
+            margin-top: 4px;
             text-align: center;
         }
 
@@ -506,7 +597,7 @@
 
         .flex {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
         .gap-6 {
             gap: 6px;
@@ -537,165 +628,297 @@
 <body>
 
     <div class="app-container" id="app">
+        <!-- 头部 + 单元选择 -->
         <div class="app-header">
             <div class="app-title"><span>🌸</span> 听写小助手</div>
-            <span class="mode-badge" id="modeBadge">📖 学习模式</span>
-        </div>
-
-        <div class="progress-area">
-            <span class="counter">第 <strong id="currentNum">1</strong> / <span id="totalNum">0</span> 个</span>
-            <div class="progress-bar-bg">
-                <div class="progress-bar-fill" id="progressFill"></div>
+            <div class="unit-selector">
+                <label>📚</label>
+                <select id="unitSelect">
+                    <option value="0">Unit 1</option>
+                    <option value="1">Unit 2</option>
+                    <option value="2">Unit 3</option>
+                    <option value="3">Unit 4</option>
+                    <option value="4">Unit 5</option>
+                    <option value="5">Unit 6</option>
+                    <option value="6">Unit 7</option>
+                    <option value="7">Unit 8</option>
+                    <option value="8">Unit 9</option>
+                    <option value="9">Unit 10</option>
+                </select>
             </div>
         </div>
 
+        <!-- 模式 -->
         <div class="mode-switch">
             <button class="btn active" data-mode="learn" id="modeLearn">📚 学习模式</button>
             <button class="btn" data-mode="dictation" id="modeDictation">🎧 听写模式</button>
         </div>
 
+        <!-- 进度 -->
+        <div class="progress-area">
+            <span class="counter">第 <strong id="currentNum">1</strong> / <span id="totalNum">0</span> 个</span>
+            <span class="mode-badge" id="modeBadge">📖 学习</span>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <!-- 单词卡片 -->
         <div class="word-card learn-mode" id="wordCard">
             <div class="word-en" id="wordEn">beautiful</div>
             <div class="word-phonetic" id="wordPhonetic">/ˈbjuːtɪfl/</div>
             <div class="word-zh" id="wordZh">美丽的</div>
+            <div class="word-example" id="wordExample">
+                <span class="label">📝 例句</span>
+                <div class="en" id="exampleEn">She is a beautiful girl.</div>
+                <div class="zh" id="exampleZh">她是一个美丽的女孩。</div>
+            </div>
             <div class="dictation-placeholder">
                 <span class="big-icon">🔊</span>
                 点击「朗读」听写<br>
-                <span class="hint">听完后在纸上写答案</span>
+                <span class="hint">按序号在纸上写答案</span>
                 <div class="progress-text" id="dictationProgress">已听写: 0 / 0</div>
             </div>
         </div>
 
+        <!-- 操作按钮 -->
         <div class="action-grid">
             <button class="btn btn-primary" id="speakBtn">🔊 朗读</button>
             <button class="btn btn-outline" id="nextBtn">⏭ 下一个</button>
-            <button class="btn btn-warning" id="resetBtn">🔄 重新开始</button>
-            <button class="btn btn-success" id="checkBtn">✅ 查看答案</button>
+            <button class="btn btn-warning" id="resetBtn">🔄 重来</button>
+            <button class="btn btn-success" id="checkBtn">✅ 答案</button>
         </div>
 
-        <!-- 拍照 & OCR - 批量识别 -->
+        <!-- 拍照 & OCR -->
         <div class="camera-area" id="cameraArea">
             <div id="cameraPlaceholder" class="placeholder">
-                📸 全部听写完成后，点击下方拍照上传整页答案
+                📸 听写完成后拍照上传整页答案<br>
+                <small style="color:#c08a9a;">建议按序号 1. 2. 3. ... 书写</small>
             </div>
             <video id="video" autoplay playsinline class="hidden"></video>
             <img id="capturedImage" class="hidden" alt="拍摄的照片">
 
             <div class="camera-actions">
-                <button class="btn btn-primary" id="openCameraBtn">📷 打开相机</button>
+                <button class="btn btn-primary" id="openCameraBtn">📷 相机</button>
                 <button class="btn" id="captureBtn">📸 拍照</button>
                 <button class="btn" id="uploadBtn">🖼 选图</button>
                 <input type="file" id="fileInput" accept="image/*" style="display:none">
             </div>
 
-            <!-- 批量识别结果 -->
+            <!-- 识别结果列表 -->
             <div class="ocr-result hidden" id="ocrResult">
-                <label>✍️ 识别结果（按顺序对照填入，可手动修改）</label>
+                <label>✍️ 识别结果（按序号对照，可手动修改）</label>
                 <div id="ocrWordList"></div>
-                <div class="check-result-batch" id="batchCheckArea">
-                    <div id="batchStatus">📝 请先确认所有答案正确，然后点击批改</div>
-                    <button class="btn btn-primary" id="batchCheckBtn">📊 批量批改所有单词</button>
+                <div class="batch-status" id="batchStatus">
+                    <span>📝 确认答案后点击批改</span>
+                    <button class="btn btn-primary btn-full" id="batchCheckBtn">📊 批量批改</button>
                 </div>
             </div>
         </div>
 
-        <!-- 批改结果 -->
+        <!-- 结果 -->
         <div class="result-box hidden" id="resultBox">
             <div class="result-stats" id="resultStats">✅ 0 / 0 正确</div>
             <div id="resultDetail"></div>
         </div>
 
+        <!-- 错词本 -->
         <div class="error-list hidden" id="errorList">
             <h4>📕 错词本</h4>
             <div id="errorTags"></div>
         </div>
 
+        <!-- 添加单词 -->
         <div class="add-word-area">
             <div class="flex gap-6">
-                <input type="text" id="newWordEn" placeholder="英文单词 (如: excellent)">
-                <input type="text" id="newWordZh" placeholder="中文 (如: 极好的)">
+                <input type="text" id="newWordEn" placeholder="英文">
+                <input type="text" id="newWordZh" placeholder="中文">
             </div>
-            <input type="text" id="newWordPhonetic" placeholder="音标 (如: /ˈeksələnt/，选填)">
-            <button class="btn btn-primary btn-full" id="addWordBtn">➕ 添加新单词到词库</button>
-            <div class="small-note">💡 添加后自动保存，刷新页面不会丢失</div>
+            <input type="text" id="newWordPhonetic" placeholder="音标（选填）">
+            <input type="text" id="newWordExample" placeholder="例句（选填，如：She is beautiful.）">
+            <button class="btn btn-primary btn-full" id="addWordBtn">➕ 添加</button>
+            <div class="small-note">💡 自动保存到当前单元</div>
         </div>
     </div>
 
     <script>
-        // ===== 词库 =====
-        const DEFAULT_WORDS = [
-            { en: 'anyone', zh: '任何人', phonetic: '/ˈeniwʌn/' },
-            { en: 'anywhere', zh: '任何地方', phonetic: '/ˈeniweə(r)/' },
-            { en: 'wonderful', zh: '精彩的；绝妙的', phonetic: '/ˈwʌndəfl/' },
-            { en: 'few', zh: '不多；很少', phonetic: '/fjuː/' },
-            { en: 'most', zh: '最多；大多数', phonetic: '/məʊst/' },
-            { en: 'something', zh: '某事物', phonetic: '/ˈsʌmθɪŋ/' },
-            { en: 'nothing', zh: '没有什么', phonetic: '/ˈnʌθɪŋ/' },
-            { en: 'everyone', zh: '每个人', phonetic: '/ˈevriwʌn/' },
-            { en: 'myself', zh: '我自己', phonetic: '/maɪˈself/' },
-            { en: 'yourself', zh: '你自己', phonetic: '/jɔːˈself/' },
-            { en: 'hen', zh: '母鸡', phonetic: '/hen/' },
-            { en: 'pig', zh: '猪', phonetic: '/pɪɡ/' },
-            { en: 'bored', zh: '厌倦的；烦闷的', phonetic: '/bɔːd/' },
-            { en: 'someone', zh: '某人', phonetic: '/ˈsʌmwʌn/' },
-            { en: 'diary', zh: '日记；日记簿', phonetic: '/ˈdaɪəri/' },
-            { en: 'activity', zh: '活动', phonetic: '/ækˈtɪvəti/' },
-            { en: 'decide', zh: '决定', phonetic: '/dɪˈsaɪd/' },
-            { en: 'try', zh: '尝试；设法', phonetic: '/traɪ/' },
-            { en: 'paragliding', zh: '滑翔伞运动', phonetic: '/ˈpærəɡlaɪdɪŋ/' },
-            { en: 'feel like', zh: '给……的感觉；感受到', phonetic: '/fiːl laɪk/' },
-            { en: 'bird', zh: '鸟', phonetic: '/bɜːd/' },
-            { en: 'bicycle', zh: '自行车', phonetic: '/ˈbaɪsɪkl/' },
-            { en: 'building', zh: '建筑物', phonetic: '/ˈbɪldɪŋ/' },
-            { en: 'trader', zh: '商人', phonetic: '/ˈtreɪdə(r)/' },
-            { en: 'wonder', zh: '想知道；惊讶', phonetic: '/ˈwʌndə(r)/' },
-            { en: 'difference', zh: '差别；差异', phonetic: '/ˈdɪfrəns/' },
-            { en: 'top', zh: '顶部；表面', phonetic: '/tɒp/' },
-            { en: 'wait', zh: '等待；等候', phonetic: '/weɪt/' },
-            { en: 'umbrella', zh: '伞；雨伞', phonetic: '/ʌmˈbrelə/' },
-            { en: 'wet', zh: '湿的；潮湿的', phonetic: '/wet/' },
-            { en: 'below', zh: '在……下面', phonetic: '/bɪˈləʊ/' },
-            { en: 'enough', zh: '足够的(地)', phonetic: '/ɪˈnʌf/' },
-            { en: 'hungry', zh: '饥饿的', phonetic: '/ˈhʌŋɡri/' },
-            { en: 'dislike', zh: '不喜欢；厌恶', phonetic: '/dɪsˈlaɪk/' },
-            { en: 'important', zh: '重要的', phonetic: '/ɪmˈpɔːtnt/' },
-            { en: 'habit', zh: '习惯', phonetic: '/ˈhæbɪt/' },
-            { en: 'healthy', zh: '健康的', phonetic: '/ˈhelθi/' },
-            { en: 'unhealthy', zh: '不健康的', phonetic: '/ʌnˈhelθi/' },
-            { en: 'truly', zh: '真正；确实', phonetic: '/ˈtruːli/' },
-            { en: 'care', zh: '在意；担忧', phonetic: '/keə(r)/' },
-            { en: 'relationship', zh: '关系', phonetic: '/rɪˈleɪʃnʃɪp/' },
-            { en: 'cloud', zh: '云', phonetic: '/klaʊd/' },
-            { en: 'beach', zh: '海滩', phonetic: '/biːtʃ/' },
-            { en: 'museum', zh: '博物馆', phonetic: '/mjuˈziːəm/' },
-            { en: 'countryside', zh: '乡村', phonetic: '/ˈkʌntrisaɪd/' },
-            { en: 'sunshine', zh: '阳光', phonetic: '/ˈsʌnʃaɪn/' },
-            { en: 'hope', zh: '希望', phonetic: '/həʊp/' },
-            { en: 'meaning', zh: '意思；意义', phonetic: '/ˈmiːnɪŋ/' },
-            { en: 'discuss', zh: '讨论；商量', phonetic: '/dɪˈskʌs/' },
-            { en: 'promise', zh: '承诺；诺言', phonetic: '/ˈprɒmɪs/' },
-            { en: 'beginning', zh: '开始；开端', phonetic: '/bɪˈɡɪnɪŋ/' },
-            { en: 'improve', zh: '改进；改善', phonetic: '/ɪmˈpruːv/' },
-            { en: 'physical', zh: '身体的', phonetic: '/ˈfɪzɪkl/' },
-            { en: 'themselves', zh: '他们自己', phonetic: '/ðəmˈselvz/' },
-            { en: 'science', zh: '科学', phonetic: '/ˈsaɪəns/' },
-            { en: 'weekend', zh: '周末', phonetic: '/ˌwiːkˈend/' }
+        // ================================================================
+        // 1. 词库（按单元分组，含例句）
+        // ================================================================
+        const UNIT_WORDS = [
+            // Unit 1
+            [
+                { en: 'anyone', zh: '任何人', phonetic: '/ˈeniwʌn/', example: 'Is there anyone here?', exampleZh: '这里有人吗？' },
+                { en: 'anywhere', zh: '任何地方', phonetic: '/ˈeniweə(r)/', example: 'You can go anywhere you like.',
+                    exampleZh: '你可以去任何你喜欢的地方。' },
+                { en: 'wonderful', zh: '精彩的', phonetic: '/ˈwʌndəfl/', example: 'We had a wonderful time.',
+                    exampleZh: '我们度过了美好的时光。' },
+                { en: 'few', zh: '很少', phonetic: '/fjuː/', example: 'Few people know the truth.', exampleZh: '很少人知道真相。' },
+                { en: 'most', zh: '大多数', phonetic: '/məʊst/', example: 'Most students like this book.',
+                    exampleZh: '大多数学生喜欢这本书。' },
+                { en: 'something', zh: '某事物', phonetic: '/ˈsʌmθɪŋ/', example: 'I want to eat something.',
+                    exampleZh: '我想吃点东西。' },
+                { en: 'nothing', zh: '没有什么', phonetic: '/ˈnʌθɪŋ/', example: 'There is nothing in the box.',
+                    exampleZh: '盒子里什么都没有。' },
+                { en: 'everyone', zh: '每个人', phonetic: '/ˈevriwʌn/', example: 'Everyone loves spring.',
+                    exampleZh: '每个人都喜欢春天。' },
+                { en: 'myself', zh: '我自己', phonetic: '/maɪˈself/', example: 'I can do it myself.', exampleZh: '我自己能做。' },
+                { en: 'yourself', zh: '你自己', phonetic: '/jɔːˈself/', example: 'Take care of yourself.',
+                    exampleZh: '照顾好你自己。' },
+            ],
+            // Unit 2
+            [
+                { en: 'hen', zh: '母鸡', phonetic: '/hen/', example: 'The hen lays eggs every day.',
+                    exampleZh: '这只母鸡每天下蛋。' },
+                { en: 'pig', zh: '猪', phonetic: '/pɪɡ/', example: 'The pig is sleeping in the mud.',
+                    exampleZh: '猪在泥里睡觉。' },
+                { en: 'bored', zh: '厌倦的', phonetic: '/bɔːd/', example: 'I feel bored at home.', exampleZh: '我在家感到无聊。' },
+                { en: 'someone', zh: '某人', phonetic: '/ˈsʌmwʌn/', example: 'Someone called you just now.',
+                    exampleZh: '刚才有人给你打电话。' },
+                { en: 'diary', zh: '日记', phonetic: '/ˈdaɪəri/', example: 'I write in my diary every night.',
+                    exampleZh: '我每晚写日记。' },
+                { en: 'activity', zh: '活动', phonetic: '/ækˈtɪvəti/', example: 'We have many after-school activities.',
+                    exampleZh: '我们有很多课外活动。' },
+                { en: 'decide', zh: '决定', phonetic: '/dɪˈsaɪd/', example: 'I decide to study harder.',
+                    exampleZh: '我决定更加努力学习。' },
+                { en: 'try', zh: '尝试', phonetic: '/traɪ/', example: 'Let me try again.', exampleZh: '让我再试一次。' },
+                { en: 'paragliding', zh: '滑翔伞', phonetic: '/ˈpærəɡlaɪdɪŋ/', example: 'He enjoys paragliding.',
+                    exampleZh: '他喜欢滑翔伞运动。' },
+                { en: 'feel like', zh: '感受到', phonetic: '/fiːl laɪk/', example: 'I feel like I can do it.',
+                    exampleZh: '我觉得我能做到。' },
+            ],
+            // Unit 3
+            [
+                { en: 'bird', zh: '鸟', phonetic: '/bɜːd/', example: 'The bird can fly high.', exampleZh: '鸟能飞得很高。' },
+                { en: 'bicycle', zh: '自行车', phonetic: '/ˈbaɪsɪkl/', example: 'I ride my bicycle to school.',
+                    exampleZh: '我骑自行车上学。' },
+                { en: 'building', zh: '建筑物', phonetic: '/ˈbɪldɪŋ/', example: 'The building is very tall.',
+                    exampleZh: '这栋建筑物很高。' },
+                { en: 'trader', zh: '商人', phonetic: '/ˈtreɪdə(r)/', example: 'He is a successful trader.',
+                    exampleZh: '他是一位成功的商人。' },
+                { en: 'wonder', zh: '想知道', phonetic: '/ˈwʌndə(r)/', example: 'I wonder what happened.',
+                    exampleZh: '我想知道发生了什么。' },
+                { en: 'difference', zh: '差别', phonetic: '/ˈdɪfrəns/', example: 'There is no difference between them.',
+                    exampleZh: '它们之间没有差别。' },
+                { en: 'top', zh: '顶部', phonetic: '/tɒp/', example: 'The cat is on the top of the roof.',
+                    exampleZh: '猫在屋顶上。' },
+                { en: 'wait', zh: '等待', phonetic: '/weɪt/', example: 'Please wait for me.', exampleZh: '请等我。' },
+                { en: 'umbrella', zh: '伞', phonetic: '/ʌmˈbrelə/', example: 'Take an umbrella with you.',
+                    exampleZh: '带上伞。' },
+                { en: 'wet', zh: '湿的', phonetic: '/wet/', example: 'My clothes are wet.', exampleZh: '我的衣服湿了。' },
+            ],
+            // Unit 4
+            [
+                { en: 'below', zh: '在下面', phonetic: '/bɪˈləʊ/', example: 'The temperature is below zero.',
+                    exampleZh: '温度在零度以下。' },
+                { en: 'enough', zh: '足够的', phonetic: '/ɪˈnʌf/', example: 'We have enough time.', exampleZh: '我们有足够的时间。' },
+                { en: 'hungry', zh: '饥饿的', phonetic: '/ˈhʌŋɡri/', example: 'I am hungry. Let\'s eat!',
+                    exampleZh: '我饿了，我们吃饭吧！' },
+                { en: 'dislike', zh: '不喜欢', phonetic: '/dɪsˈlaɪk/', example: 'I dislike getting up early.',
+                    exampleZh: '我不喜欢早起。' },
+                { en: 'important', zh: '重要的', phonetic: '/ɪmˈpɔːtnt/', example: 'This is very important to me.',
+                    exampleZh: '这对我很重要。' },
+                { en: 'habit', zh: '习惯', phonetic: '/ˈhæbɪt/', example: 'Reading is a good habit.',
+                    exampleZh: '阅读是一个好习惯。' },
+                { en: 'healthy', zh: '健康的', phonetic: '/ˈhelθi/', example: 'Eating vegetables keeps you healthy.',
+                    exampleZh: '吃蔬菜让你保持健康。' },
+                { en: 'unhealthy', zh: '不健康的', phonetic: '/ʌnˈhelθi/', example: 'Eating too much is unhealthy.',
+                    exampleZh: '吃太多不健康。' },
+                { en: 'truly', zh: '真正', phonetic: '/ˈtruːli/', example: 'I truly believe you.', exampleZh: '我真的相信你。' },
+                { en: 'care', zh: '在意', phonetic: '/keə(r)/', example: 'I don\'t care what others think.',
+                    exampleZh: '我不在意别人怎么想。' },
+            ],
+            // Unit 5
+            [
+                { en: 'relationship', zh: '关系', phonetic: '/rɪˈleɪʃnʃɪp/', example: 'They have a good relationship.',
+                    exampleZh: '他们关系很好。' },
+                { en: 'cloud', zh: '云', phonetic: '/klaʊd/', example: 'The cloud looks like an elephant.',
+                    exampleZh: '云看起来像大象。' },
+                { en: 'beach', zh: '海滩', phonetic: '/biːtʃ/', example: 'We walk on the beach.', exampleZh: '我们在海滩上散步。' },
+                { en: 'museum', zh: '博物馆', phonetic: '/mjuˈziːəm/', example: 'We visited a museum yesterday.',
+                    exampleZh: '我们昨天参观了一个博物馆。' },
+                { en: 'countryside', zh: '乡村', phonetic: '/ˈkʌntrisaɪd/', example: 'I love the countryside.',
+                    exampleZh: '我喜欢乡村。' },
+                { en: 'sunshine', zh: '阳光', phonetic: '/ˈsʌnʃaɪn/', example: 'The sunshine is warm.',
+                    exampleZh: '阳光很温暖。' },
+                { en: 'hope', zh: '希望', phonetic: '/həʊp/', example: 'I hope you can come.', exampleZh: '希望你能来。' },
+                { en: 'meaning', zh: '意思', phonetic: '/ˈmiːnɪŋ/', example: 'What is the meaning of this word?',
+                    exampleZh: '这个词是什么意思？' },
+                { en: 'discuss', zh: '讨论', phonetic: '/dɪˈskʌs/', example: 'We need to discuss this issue.',
+                    exampleZh: '我们需要讨论这个问题。' },
+                { en: 'promise', zh: '承诺', phonetic: '/ˈprɒmɪs/', example: 'I promise I will be there.',
+                    exampleZh: '我保证我会到的。' },
+            ],
+            // Unit 6
+            [
+                { en: 'beginning', zh: '开始', phonetic: '/bɪˈɡɪnɪŋ/', example: 'This is just the beginning.',
+                    exampleZh: '这只是开始。' },
+                { en: 'improve', zh: '改善', phonetic: '/ɪmˈpruːv/', example: 'I want to improve my English.',
+                    exampleZh: '我想提高英语。' },
+                { en: 'physical', zh: '身体的', phonetic: '/ˈfɪzɪkl/', example: 'We need physical exercise.',
+                    exampleZh: '我们需要身体锻炼。' },
+                { en: 'themselves', zh: '他们自己', phonetic: '/ðəmˈselvz/', example: 'They enjoyed themselves at the party.',
+                    exampleZh: '他们在派对上玩得很开心。' },
+                { en: 'science', zh: '科学', phonetic: '/ˈsaɪəns/', example: 'Science is an interesting subject.',
+                    exampleZh: '科学是一门有趣的学科。' },
+                { en: 'weekend', zh: '周末', phonetic: '/ˌwiːkˈend/', example: 'I have no plans for the weekend.',
+                    exampleZh: '我周末没有计划。' },
+            ],
+            // Unit 7 ~ 10 预留
+            [
+                { en: 'example', zh: '例子', phonetic: '/ɪɡˈzɑːmpl/', example: 'Can you give me an example?',
+                    exampleZh: '你能给我一个例子吗？' },
+                { en: 'practice', zh: '练习', phonetic: '/ˈpræktɪs/', example: 'Practice makes perfect.',
+                    exampleZh: '熟能生巧。' },
+                { en: 'remember', zh: '记住', phonetic: '/rɪˈmembə(r)/', example: 'Remember to close the door.',
+                    exampleZh: '记住关门。' },
+            ],
+            [
+                { en: 'together', zh: '一起', phonetic: '/təˈɡeðə(r)/', example: 'We can do it together.',
+                    exampleZh: '我们可以一起做。' },
+                { en: 'different', zh: '不同的', phonetic: '/ˈdɪfrənt/', example: 'We have different hobbies.',
+                    exampleZh: '我们有不同的爱好。' },
+                { en: 'beautiful', zh: '美丽的', phonetic: '/ˈbjuːtɪfl/', example: 'The flower is beautiful.',
+                    exampleZh: '这朵花很美丽。' },
+            ],
+            [
+                { en: 'wonderful', zh: '精彩的', phonetic: '/ˈwʌndəfl/', example: 'It is a wonderful day.',
+                    exampleZh: '这是美好的一天。' },
+                { en: 'important', zh: '重要的', phonetic: '/ɪmˈpɔːtnt/', example: 'It is important to study.',
+                    exampleZh: '学习很重要。' },
+                { en: 'interesting', zh: '有趣的', phonetic: '/ˈɪntrəstɪŋ/', example: 'This book is very interesting.',
+                    exampleZh: '这本书很有趣。' },
+            ],
+            [
+                { en: 'everyone', zh: '每个人', phonetic: '/ˈevriwʌn/', example: 'Everyone likes him.',
+                    exampleZh: '每个人都喜欢他。' },
+                { en: 'something', zh: '某事物', phonetic: '/ˈsʌmθɪŋ/', example: 'I want to buy something.',
+                    exampleZh: '我想买点东西。' },
+                { en: 'anything', zh: '任何事物', phonetic: '/ˈeniθɪŋ/', example: 'I won\'t do anything wrong.',
+                    exampleZh: '我不会做任何错事。' },
+            ]
         ];
 
-        // ===== 状态 =====
+        // ================================================================
+        // 2. 状态
+        // ================================================================
+        let currentUnit = 0;
         let words = [];
         let currentIndex = 0;
         let mode = 'learn';
         let answered = false;
         let results = [];
         let errorWords = [];
-        let dictationCount = 0; // 已听写数量
-        let ocrWords = []; // OCR识别出的单词列表
+        let dictationCount = 0;
+        let ocrWords = [];
 
         const $ = id => document.getElementById(id);
         const wordEn = $('wordEn');
         const wordPhonetic = $('wordPhonetic');
         const wordZh = $('wordZh');
+        const wordExample = $('wordExample');
+        const exampleEn = $('exampleEn');
+        const exampleZh = $('exampleZh');
         const wordCard = $('wordCard');
         const currentNum = $('currentNum');
         const totalNum = $('totalNum');
@@ -717,6 +940,7 @@
         const batchStatus = $('batchStatus');
         const batchCheckBtn = $('batchCheckBtn');
         const dictationProgress = $('dictationProgress');
+        const unitSelect = $('unitSelect');
         const cameraPlaceholder = $('cameraPlaceholder');
         const video = $('video');
         const capturedImage = $('capturedImage');
@@ -727,28 +951,48 @@
         const newWordEn = $('newWordEn');
         const newWordZh = $('newWordZh');
         const newWordPhonetic = $('newWordPhonetic');
+        const newWordExample = $('newWordExample');
         const addWordBtn = $('addWordBtn');
 
         let stream = null;
         let isCameraOpen = false;
 
-        // ===== 初始化 =====
+        // ================================================================
+        // 3. 初始化
+        // ================================================================
         function init() {
-            const saved = localStorage.getItem('dictation_words');
-            if (saved) {
-                try { words = JSON.parse(saved); } catch (e) { words = [...DEFAULT_WORDS]; }
-            } else {
-                words = [...DEFAULT_WORDS];
-                saveWords();
+            const savedUnit = localStorage.getItem('current_unit');
+            if (savedUnit !== null) {
+                currentUnit = parseInt(savedUnit);
+                unitSelect.value = currentUnit;
             }
+
+            loadUnit(currentUnit);
             totalNum.textContent = words.length;
             resetQuiz();
             updateUI();
             bindEvents();
         }
 
-        function saveWords() {
-            localStorage.setItem('dictation_words', JSON.stringify(words));
+        function loadUnit(unitIndex) {
+            const saved = localStorage.getItem(`unit_${unitIndex}_words`);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (parsed && parsed.length > 0) {
+                        words = parsed;
+                        return;
+                    }
+                } catch (e) {}
+            }
+            words = UNIT_WORDS[unitIndex] || UNIT_WORDS[0];
+            words = words.map(w => ({ ...w }));
+            saveUnitWords();
+        }
+
+        function saveUnitWords() {
+            localStorage.setItem(`unit_${currentUnit}_words`, JSON.stringify(words));
+            localStorage.setItem('current_unit', String(currentUnit));
         }
 
         function resetQuiz() {
@@ -762,15 +1006,20 @@
             errorList.classList.add('hidden');
             ocrResult.classList.add('hidden');
             ocrWordList.innerHTML = '';
+            cameraPlaceholder.textContent = '📸 听写完成后拍照上传整页答案\n' +
+                '💡 建议按序号 1. 2. 3. ... 书写';
             updateUI();
         }
 
-        // ===== 渲染 =====
+        // ================================================================
+        // 4. 渲染
+        // ================================================================
         function updateUI() {
             if (words.length === 0) {
-                wordEn.textContent = '🎉 词库为空';
+                wordEn.textContent = '📚 词库为空';
                 wordPhonetic.textContent = '';
                 wordZh.textContent = '请添加单词';
+                wordExample.classList.add('hidden');
                 currentNum.textContent = '0';
                 progressFill.style.width = '0%';
                 dictationProgress.textContent = '已听写: 0 / 0';
@@ -783,6 +1032,15 @@
             wordEn.textContent = w.en;
             wordPhonetic.textContent = w.phonetic || '';
             wordZh.textContent = w.zh;
+
+            // 例句
+            if (w.example && w.exampleZh) {
+                exampleEn.textContent = w.example;
+                exampleZh.textContent = w.exampleZh;
+                wordExample.classList.remove('hidden');
+            } else {
+                wordExample.classList.add('hidden');
+            }
 
             if (mode === 'learn') {
                 wordCard.className = 'word-card learn-mode';
@@ -799,25 +1057,25 @@
             const pct = words.length > 0 ? ((idx + 1) / words.length * 100) : 0;
             progressFill.style.width = Math.min(pct, 100) + '%';
 
-            modeBadge.textContent = mode === 'learn' ? '📖 学习模式' : '🎧 听写模式';
-
-            // 更新听写进度
+            modeBadge.textContent = mode === 'learn' ? '📖 学习' : '🎧 听写';
             dictationProgress.textContent = `已听写: ${dictationCount} / ${words.length}`;
 
-            // 如果所有单词已听完，提示拍照
             if (mode === 'dictation' && dictationCount >= words.length) {
-                cameraPlaceholder.textContent = '🎉 所有单词已听完！请拍照上传你的答案吧 📸';
+                cameraPlaceholder.textContent = '🎉 所有单词已听完！请拍照上传你的答案 📸\n' +
+                    '💡 建议按序号 1. 2. 3. ... 书写';
             }
         }
 
-        // ===== 语音 =====
+        // ================================================================
+        // 5. 语音
+        // ================================================================
         function speakWord() {
             if (words.length === 0) return;
             const w = words[Math.min(currentIndex, words.length - 1)];
             const text = w.en;
 
             if (!window.speechSynthesis) {
-                alert('抱歉，您的浏览器不支持语音功能。');
+                alert('浏览器不支持语音功能。');
                 return;
             }
 
@@ -838,9 +1096,7 @@
                 doSpeak(text, voices);
             }
 
-            // 听写模式下，朗读后标记已听写
             if (mode === 'dictation' && !answered) {
-                // 如果当前单词还没显示答案，增加计数
                 const idx = Math.min(currentIndex, words.length - 1);
                 if (!results[idx]) {
                     dictationCount = Math.max(dictationCount, idx + 1);
@@ -856,38 +1112,15 @@
             utterance.pitch = 1.0;
             utterance.volume = 1;
 
-            let selected = null;
             for (const v of voices) {
                 if (v.lang === 'en-US' && (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes(
                         'Alex'))) {
-                    selected = v;
+                    utterance.voice = v;
                     break;
-                }
-            }
-            if (selected) {
-                utterance.voice = selected;
-            } else if (voices.length > 0) {
-                for (const v of voices) {
-                    if (v.lang.startsWith('en')) {
-                        utterance.voice = v;
-                        break;
-                    }
                 }
             }
 
             window.speechSynthesis.speak(utterance);
-
-            let played = false;
-            utterance.onstart = () => { played = true; };
-            setTimeout(() => {
-                if (!played) {
-                    window.speechSynthesis.cancel();
-                    const retry = new SpeechSynthesisUtterance(text);
-                    retry.lang = 'en-US';
-                    retry.rate = 0.85;
-                    window.speechSynthesis.speak(retry);
-                }
-            }, 4000);
         }
 
         if (window.speechSynthesis) {
@@ -897,7 +1130,9 @@
             };
         }
 
-        // ===== 核心操作 =====
+        // ================================================================
+        // 6. 核心操作
+        // ================================================================
         function nextWord() {
             if (words.length === 0) return;
 
@@ -912,13 +1147,9 @@
                     setTimeout(() => speakWord(), 400);
                 }
             } else {
-                // 已经是最后一个
                 if (mode === 'dictation' && dictationCount >= words.length) {
-                    // 所有单词已听完，提示拍照
-                    alert('🎉 所有单词已听完！请拍照上传你的答案，然后点击「批量批改」');
-                    cameraPlaceholder.textContent = '🎉 所有单词已听完！请拍照上传你的答案吧 📸';
+                    alert('🎉 所有单词已听完！请拍照上传你的答案');
                 } else if (mode === 'dictation') {
-                    // 还没听完，自动朗读当前
                     speakWord();
                 } else {
                     alert('🎉 已学完所有单词！');
@@ -938,56 +1169,84 @@
         }
 
         function resetQuizHandler() {
-            if (confirm('重新开始会清除所有进度，确定吗？')) {
+            if (confirm('重新开始会清除当前单元的所有进度，确定吗？')) {
                 resetQuiz();
             }
         }
 
-        // ===== 批量OCR识别 =====
+        // ================================================================
+        // 7. OCR 识别
+        // ================================================================
         async function performOCR(imageData) {
             ocrResult.classList.remove('hidden');
-            batchStatus.textContent = '⏳ 正在识别中，请稍候...';
+            batchStatus.innerHTML = '<span>⏳ 识别中...</span>';
             batchCheckBtn.disabled = true;
 
             try {
                 const result = await Tesseract.recognize(imageData, 'eng', {
                     logger: (m) => {
                         if (m.status === 'recognizing text') {
-                            batchStatus.textContent = `⏳ 识别中... ${Math.round(m.progress * 100)}%`;
+                            batchStatus.innerHTML = `<span>⏳ 识别中 ${Math.round(m.progress * 100)}%</span>`;
                         }
                     }
                 });
 
-                // 解析识别结果 - 按行分割，提取单词
                 const lines = result.data.text.split('\n')
                     .map(line => line.trim())
                     .filter(line => line.length > 0);
 
-                // 提取单词（取每行的第一个词，并清理标点）
-                const extracted = lines.map(line => {
-                    const words = line.split(/\s+/);
-                    let w = words[0] || line;
-                    w = w.replace(/[^a-zA-Z']/g, '');
-                    return w.toLowerCase();
-                }).filter(w => w.length > 0);
-
-                // 只取前N个（和词库数量匹配）
-                const count = Math.min(extracted.length, words.length);
-                ocrWords = extracted.slice(0, count);
-
-                // 如果识别出的单词少于词库数量，用空字符串补齐
-                while (ocrWords.length < words.length) {
-                    ocrWords.push('');
+                const extracted = [];
+                for (const line of lines) {
+                    const match = line.match(/^(\d+)[\.\s]+([a-zA-Z']+)/);
+                    if (match) {
+                        const num = parseInt(match[1]) - 1;
+                        const word = match[2].toLowerCase().replace(/[^a-zA-Z']/g, '');
+                        extracted.push({ index: num, word: word });
+                    } else {
+                        const word = line.split(/\s+/)[0].toLowerCase().replace(/[^a-zA-Z']/g, '');
+                        if (word) {
+                            extracted.push({ index: extracted.length, word: word });
+                        }
+                    }
                 }
 
-                // 渲染识别结果列表
+                ocrWords = [];
+                for (let i = 0; i < words.length; i++) {
+                    ocrWords[i] = '';
+                }
+
+                for (const item of extracted) {
+                    if (item.index >= 0 && item.index < words.length) {
+                        ocrWords[item.index] = item.word;
+                    }
+                }
+
+                let fillIndex = 0;
+                for (let i = 0; i < words.length; i++) {
+                    if (!ocrWords[i] && fillIndex < extracted.length) {
+                        while (fillIndex < extracted.length && extracted[fillIndex].word) {
+                            if (!ocrWords.includes(extracted[fillIndex].word)) {
+                                ocrWords[i] = extracted[fillIndex].word;
+                                fillIndex++;
+                                break;
+                            }
+                            fillIndex++;
+                        }
+                    }
+                }
+
                 renderOCRList();
 
-                batchStatus.textContent = `✅ 识别完成！识别到 ${ocrWords.filter(w => w).length} 个单词，请确认后批改`;
+                const count = ocrWords.filter(w => w).length;
+                batchStatus.innerHTML = `
+                    <span>✅ 识别完成！识别到 ${count}/${words.length} 个单词</span>
+                    <button class="btn btn-primary btn-full" id="batchCheckBtn">📊 批量批改</button>
+                `;
+                document.getElementById('batchCheckBtn')?.addEventListener('click', batchCheck);
                 batchCheckBtn.disabled = false;
 
             } catch (err) {
-                batchStatus.textContent = '❌ 识别失败，请重试或手动输入';
+                batchStatus.innerHTML = '<span>❌ 识别失败，请重试或手动输入</span>';
                 console.warn('OCR Error:', err);
                 batchCheckBtn.disabled = false;
             }
@@ -999,31 +1258,31 @@
                 const w = words[i];
                 const userAns = ocrWords[i] || '';
                 const isChecked = results[i] !== undefined;
-                const status = isChecked ? (results[i].correct ? '✅' : '❌') : '⏳';
+                const status = isChecked ? (results[i].correct ? '✅' : '❌') : '';
 
                 html += `
                     <div class="ocr-word-item">
                         <span class="index">#${i+1}</span>
-                        <span style="font-weight:600;min-width:80px;color:#3d202a;">${w.en}</span>
-                        <span style="color:#b06a7a;font-size:13px;min-width:50px;">${w.zh}</span>
-                        <input type="text" id="ocrInput_${i}" value="${userAns}" placeholder="你的答案..." ${isChecked ? 'disabled' : ''}>
+                        <span class="word-en">${w.en}</span>
+                        <span class="word-zh">${w.zh}</span>
+                        <input type="text" id="ocrInput_${i}" value="${userAns}" placeholder="..." ${isChecked ? 'disabled' : ''}>
                         <span class="status">${status}</span>
                     </div>
                 `;
             }
             ocrWordList.innerHTML = html;
 
-            // 如果已经批改过，禁用所有输入
             if (results.length === words.length && results.every(r => r !== undefined)) {
                 document.querySelectorAll('#ocrWordList input').forEach(inp => inp.disabled = true);
                 batchCheckBtn.disabled = true;
-                batchStatus.textContent = '✅ 所有单词已批改完成！查看下方成绩单';
+                batchStatus.innerHTML = '<span>✅ 所有单词已批改完成！查看下方成绩单</span>';
             }
         }
 
-        // ===== 批量批改 =====
+        // ================================================================
+        // 8. 批量批改
+        // ================================================================
         function batchCheck() {
-            // 收集所有输入
             const inputs = document.querySelectorAll('#ocrWordList input');
             let allFilled = true;
 
@@ -1034,12 +1293,11 @@
             }
 
             if (!allFilled) {
-                if (!confirm('有部分单词未填写答案，确定要继续批改吗？（未填写的将计为错误）')) {
+                if (!confirm('有部分单词未填写答案，继续批改？（未填写的计为错误）')) {
                     return;
                 }
             }
 
-            // 逐个检查
             let correct = 0;
             results = [];
             errorWords = [];
@@ -1064,21 +1322,18 @@
                 }
             }
 
-            // 重新渲染列表显示状态
             renderOCRList();
             updateErrorList();
-
-            // 显示成绩单
             showFinalResult();
 
-            batchStatus.textContent = `✅ 批改完成！正确 ${correct}/${words.length}`;
+            batchStatus.innerHTML = `<span>✅ 批改完成！正确 ${correct}/${words.length}</span>`;
             batchCheckBtn.disabled = true;
-
-            // 禁用所有输入
             document.querySelectorAll('#ocrWordList input').forEach(inp => inp.disabled = true);
         }
 
-        // ===== 显示最终结果 =====
+        // ================================================================
+        // 9. 显示结果
+        // ================================================================
         function showFinalResult() {
             let correct = 0;
             let total = words.length;
@@ -1091,16 +1346,16 @@
                     const status = r.correct ? '✅' : '❌';
                     detailHTML += `
                         <div class="result-item">
-                            <span>${status} <strong>${r.en}</strong> <span style="color:#b06a7a;font-size:14px;">${r.zh}</span></span>
-                            <span style="color:${r.correct ? '#4a9a73' : '#d94f6a'};font-size:15px;">${r.userAnswer}</span>
+                            <span>${status} <strong>${r.en}</strong> <span class="text-muted" style="font-size:13px;">${r.zh}</span></span>
+                            <span style="color:${r.correct ? '#4a9a73' : '#d94f6a'};font-size:14px;">${r.userAnswer}</span>
                         </div>
                     `;
                 } else {
                     const w = words[i];
                     detailHTML += `
                         <div class="result-item">
-                            <span>⚠️ <strong>${w.en}</strong> <span style="color:#b06a7a;font-size:14px;">${w.zh}</span></span>
-                            <span style="color:#d94f6a;">(未作答)</span>
+                            <span>⚠️ <strong>${w.en}</strong> <span class="text-muted" style="font-size:13px;">${w.zh}</span></span>
+                            <span style="color:#d94f6a;font-size:14px;">(未作答)</span>
                         </div>
                     `;
                 }
@@ -1112,7 +1367,6 @@
             updateErrorList();
         }
 
-        // ===== 错词本 =====
         function updateErrorList() {
             const unique = [...new Set(errorWords)];
             if (unique.length === 0) {
@@ -1123,28 +1377,31 @@
             errorTags.innerHTML = unique.map(e => `<span class="error-tag">${e}</span>`).join(' ');
         }
 
-        // ===== 拍照 =====
+        // ================================================================
+        // 10. 拍照
+        // ================================================================
         async function openCamera() {
             try {
                 if (stream) {
                     stream.getTracks().forEach(t => t.stop());
                     stream = null;
                 }
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 400,
-                        height: 300 } });
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: 400, height: 300 }
+                });
                 video.srcObject = stream;
                 video.classList.remove('hidden');
                 capturedImage.classList.add('hidden');
                 cameraPlaceholder.classList.add('hidden');
                 isCameraOpen = true;
             } catch (err) {
-                alert('无法打开相机：' + err.message + '\n请允许摄像头权限，或使用「选图」功能上传图片。');
+                alert('无法打开相机：' + err.message + '\n请允许摄像头权限，或使用「选图」功能。');
             }
         }
 
         function capturePhoto() {
             if (!isCameraOpen || !stream) {
-                alert('请先点击「打开相机」');
+                alert('请先点击「相机」');
                 return;
             }
             const canvas = document.createElement('canvas');
@@ -1189,11 +1446,16 @@
             fileInput.value = '';
         }
 
-        // ===== 添加单词 =====
+        // ================================================================
+        // 11. 添加单词
+        // ================================================================
         function addWord() {
             const en = newWordEn.value.trim();
             const zh = newWordZh.value.trim();
             const phonetic = newWordPhonetic.value.trim() || '';
+            const example = newWordExample.value.trim() || '';
+            const exampleZh = example ? '' : ''; // 可后续完善
+
             if (!en || !zh) {
                 alert('请输入英文和中文！');
                 return;
@@ -1202,12 +1464,27 @@
                 alert('该单词已存在！');
                 return;
             }
-            words.push({ en, zh, phonetic });
-            saveWords();
+
+            // 如果有例句但没有中文例句，提示
+            let exampleZhInput = '';
+            if (example) {
+                exampleZhInput = prompt('请输入例句的中文翻译：');
+                if (exampleZhInput === null) return;
+            }
+
+            words.push({
+                en,
+                zh,
+                phonetic,
+                example: example || '',
+                exampleZh: exampleZhInput || ''
+            });
+            saveUnitWords();
             totalNum.textContent = words.length;
             newWordEn.value = '';
             newWordZh.value = '';
             newWordPhonetic.value = '';
+            newWordExample.value = '';
             alert(`✅ 已添加单词: ${en} - ${zh}`);
             if (words.length === 1) {
                 currentIndex = 0;
@@ -1216,7 +1493,30 @@
             }
         }
 
-        // ===== 事件绑定 =====
+        // ================================================================
+        // 12. 切换单元
+        // ================================================================
+        function switchUnit() {
+            const newUnit = parseInt(unitSelect.value);
+            if (newUnit === currentUnit) return;
+
+            if (results.length > 0 && results.some(r => r !== undefined)) {
+                if (!confirm('切换单元将丢失当前进度，确定吗？')) {
+                    unitSelect.value = currentUnit;
+                    return;
+                }
+            }
+
+            currentUnit = newUnit;
+            loadUnit(currentUnit);
+            totalNum.textContent = words.length;
+            resetQuiz();
+            updateUI();
+        }
+
+        // ================================================================
+        // 13. 事件绑定
+        // ================================================================
         function bindEvents() {
             modeLearn.addEventListener('click', () => {
                 mode = 'learn';
@@ -1237,27 +1537,32 @@
                 setTimeout(() => speakWord(), 500);
             });
 
+            unitSelect.addEventListener('change', switchUnit);
+
             speakBtn.addEventListener('click', speakWord);
             nextBtn.addEventListener('click', nextWord);
             checkBtn.addEventListener('click', showAnswer);
             resetBtn.addEventListener('click', resetQuizHandler);
-            batchCheckBtn.addEventListener('click', batchCheck);
 
             openCameraBtn.addEventListener('click', openCamera);
             captureBtn.addEventListener('click', capturePhoto);
             uploadBtn.addEventListener('click', uploadImage);
             fileInput.addEventListener('change', handleFileSelect);
 
+            batchCheckBtn.addEventListener('click', batchCheck);
+
             addWordBtn.addEventListener('click', addWord);
             newWordEn.addEventListener('keydown', (e) => { if (e.key === 'Enter') addWord(); });
             newWordZh.addEventListener('keydown', (e) => { if (e.key === 'Enter') addWord(); });
         }
 
-        // ===== 启动 =====
+        // ================================================================
+        // 启动
+        // ================================================================
         init();
         console.log('🌸 初二英语听写小助手已加载！');
-        console.log('📚 词库数量:', words.length);
-        console.log('💡 流程：连续听写 → 统一拍照 → 逐个对照批改 → 查看成绩');
+        console.log('📚 当前单元: Unit', currentUnit + 1, '单词数:', words.length);
+        console.log('💡 学习模式显示例句，听写模式完全空白！');
     </script>
 </body>
 </html>
