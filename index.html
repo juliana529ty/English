@@ -333,6 +333,11 @@
             padding: 8px 12px;
             font-size: 13px;
         }
+        .btn-danger {
+            background: #d94f6a;
+            color: white;
+            border: none;
+        }
 
         .btn:disabled {
             opacity: 0.5;
@@ -376,13 +381,53 @@
             text-align: center;
         }
 
-        .camera-area video,
-        .camera-area img {
+        .camera-area video {
             width: 100%;
-            max-height: 180px;
+            max-height: 250px;
             object-fit: cover;
             border-radius: 16px;
             background: #1a1114;
+            transform: scaleX(-1);
+            /* 自拍镜像，更自然 */
+        }
+
+        .camera-area .preview-container {
+            position: relative;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #1a1114;
+        }
+
+        .camera-area .preview-container img {
+            width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            border-radius: 16px;
+            background: #1a1114;
+            display: block;
+        }
+
+        .camera-area .preview-container .crop-overlay {
+            position: absolute;
+            top: 10%;
+            left: 5%;
+            right: 5%;
+            bottom: 10%;
+            border: 2px dashed rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .camera-area .preview-container .crop-overlay span {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 4px 12px;
+            border-radius: 20px;
         }
 
         .camera-area .placeholder {
@@ -401,7 +446,7 @@
 
         .camera-actions .btn {
             flex: 1;
-            min-width: 70px;
+            min-width: 65px;
             padding: 8px 6px;
             font-size: 13px;
         }
@@ -623,6 +668,16 @@
         .fw-bold {
             font-weight: 700;
         }
+
+        .camera-tip {
+            font-size: 12px;
+            color: #c08a9a;
+            background: #fef0f3;
+            padding: 6px 12px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
     </style>
 </head>
 <body>
@@ -693,15 +748,25 @@
         <div class="camera-area" id="cameraArea">
             <div id="cameraPlaceholder" class="placeholder">
                 📸 听写完成后拍照上传整页答案<br>
-                <small style="color:#c08a9a;">建议按序号 1. 2. 3. ... 书写</small>
+                <span class="camera-tip">📐 请将答案放在画面中央区域</span>
             </div>
+
+            <!-- 视频预览（取景） -->
             <video id="video" autoplay playsinline class="hidden"></video>
-            <img id="capturedImage" class="hidden" alt="拍摄的照片">
+
+            <!-- 拍照预览（拍摄后显示） -->
+            <div class="preview-container hidden" id="previewContainer">
+                <img id="capturedImage" alt="拍摄的照片">
+                <div class="crop-overlay">
+                    <span>📐 放入此区域</span>
+                </div>
+            </div>
 
             <div class="camera-actions">
                 <button class="btn btn-primary" id="openCameraBtn">📷 相机</button>
                 <button class="btn" id="captureBtn">📸 拍照</button>
                 <button class="btn" id="uploadBtn">🖼 选图</button>
+                <button class="btn btn-danger hidden" id="retakeBtn">🔄 重拍</button>
                 <input type="file" id="fileInput" accept="image/*" style="display:none">
             </div>
 
@@ -911,6 +976,7 @@
         let errorWords = [];
         let dictationCount = 0;
         let ocrWords = [];
+        let capturedImageData = null;
 
         const $ = id => document.getElementById(id);
         const wordEn = $('wordEn');
@@ -944,9 +1010,11 @@
         const cameraPlaceholder = $('cameraPlaceholder');
         const video = $('video');
         const capturedImage = $('capturedImage');
+        const previewContainer = $('previewContainer');
         const openCameraBtn = $('openCameraBtn');
         const captureBtn = $('captureBtn');
         const uploadBtn = $('uploadBtn');
+        const retakeBtn = $('retakeBtn');
         const fileInput = $('fileInput');
         const newWordEn = $('newWordEn');
         const newWordZh = $('newWordZh');
@@ -1002,12 +1070,17 @@
             ocrWords = [];
             dictationCount = 0;
             answered = (mode === 'learn');
+            capturedImageData = null;
             resultBox.classList.add('hidden');
             errorList.classList.add('hidden');
             ocrResult.classList.add('hidden');
             ocrWordList.innerHTML = '';
+            previewContainer.classList.add('hidden');
+            video.classList.add('hidden');
+            retakeBtn.classList.add('hidden');
+            cameraPlaceholder.classList.remove('hidden');
             cameraPlaceholder.textContent = '📸 听写完成后拍照上传整页答案\n' +
-                '💡 建议按序号 1. 2. 3. ... 书写';
+                '📐 请将答案放在画面中央区域';
             updateUI();
         }
 
@@ -1033,7 +1106,6 @@
             wordPhonetic.textContent = w.phonetic || '';
             wordZh.textContent = w.zh;
 
-            // 例句
             if (w.example && w.exampleZh) {
                 exampleEn.textContent = w.example;
                 exampleZh.textContent = w.exampleZh;
@@ -1062,7 +1134,7 @@
 
             if (mode === 'dictation' && dictationCount >= words.length) {
                 cameraPlaceholder.textContent = '🎉 所有单词已听完！请拍照上传你的答案 📸\n' +
-                    '💡 建议按序号 1. 2. 3. ... 书写';
+                    '📐 请将答案放在画面中央区域';
             }
         }
 
@@ -1175,33 +1247,180 @@
         }
 
         // ================================================================
-        // 7. OCR 识别
+        // 7. 拍照（修复偏移问题）
+        // ================================================================
+        async function openCamera() {
+            try {
+                if (stream) {
+                    stream.getTracks().forEach(t => t.stop());
+                    stream = null;
+                }
+
+                // 使用后置摄像头，并设置更精确的约束
+                const constraints = {
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        aspectRatio: { ideal: 1.777 }
+                    }
+                };
+
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+                // 获取实际视频尺寸
+                const track = stream.getVideoTracks()[0];
+                const settings = track.getSettings();
+
+                video.srcObject = stream;
+                video.classList.remove('hidden');
+                previewContainer.classList.add('hidden');
+                cameraPlaceholder.classList.add('hidden');
+                retakeBtn.classList.add('hidden');
+                isCameraOpen = true;
+
+                // 等待视频加载完成
+                await video.play();
+
+                console.log('📷 相机已打开，分辨率:', settings.width, 'x', settings.height);
+
+            } catch (err) {
+                alert('无法打开相机：' + err.message + '\n请允许摄像头权限，或使用「选图」功能。');
+            }
+        }
+
+        function capturePhoto() {
+            if (!isCameraOpen || !stream || !video.videoWidth) {
+                alert('请先点击「相机」并等待画面出现');
+                return;
+            }
+
+            // 使用视频的实际尺寸进行截取，确保不偏移
+            const width = video.videoWidth;
+            const height = video.videoHeight;
+
+            if (width === 0 || height === 0) {
+                alert('视频尚未准备好，请稍后再试');
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+
+            // 直接绘制视频帧，不裁剪不缩放，保证画面和取景一致
+            ctx.drawImage(video, 0, 0, width, height);
+
+            // 转为JPEG
+            const dataURL = canvas.toDataURL('image/jpeg', 0.9);
+
+            // 显示拍摄结果
+            capturedImage.src = dataURL;
+            capturedImageData = dataURL;
+
+            // 切换显示
+            previewContainer.classList.remove('hidden');
+            video.classList.add('hidden');
+            retakeBtn.classList.remove('hidden');
+
+            // 关闭相机释放资源
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+                stream = null;
+                isCameraOpen = false;
+            }
+
+            // 开始OCR识别
+            performOCR(dataURL);
+
+            console.log('📸 拍照完成，尺寸:', width, 'x', height);
+        }
+
+        function retakePhoto() {
+            // 清除当前拍摄结果
+            previewContainer.classList.add('hidden');
+            capturedImageData = null;
+            retakeBtn.classList.add('hidden');
+            ocrResult.classList.add('hidden');
+
+            // 重新打开相机
+            openCamera();
+        }
+
+        function uploadImage() {
+            fileInput.click();
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // 检查文件大小
+            if (file.size > 10 * 1024 * 1024) {
+                alert('图片太大（超过10MB），请压缩后再试');
+                fileInput.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const dataURL = ev.target.result;
+                capturedImage.src = dataURL;
+                capturedImageData = dataURL;
+
+                previewContainer.classList.remove('hidden');
+                video.classList.add('hidden');
+                cameraPlaceholder.classList.add('hidden');
+                retakeBtn.classList.remove('hidden');
+
+                if (stream) {
+                    stream.getTracks().forEach(t => t.stop());
+                    stream = null;
+                    isCameraOpen = false;
+                }
+
+                performOCR(dataURL);
+            };
+            reader.readAsDataURL(file);
+            fileInput.value = '';
+        }
+
+        // ================================================================
+        // 8. OCR 识别
         // ================================================================
         async function performOCR(imageData) {
             ocrResult.classList.remove('hidden');
-            batchStatus.innerHTML = '<span>⏳ 识别中...</span>';
+            batchStatus.innerHTML = '<span>⏳ 识别中，请稍候...</span>';
             batchCheckBtn.disabled = true;
 
             try {
-                const result = await Tesseract.recognize(imageData, 'eng', {
-                    logger: (m) => {
-                        if (m.status === 'recognizing text') {
-                            batchStatus.innerHTML = `<span>⏳ 识别中 ${Math.round(m.progress * 100)}%</span>`;
+                const result = await Tesseract.recognize(
+                    imageData,
+                    'eng', {
+                        logger: (m) => {
+                            if (m.status === 'recognizing text') {
+                                batchStatus.innerHTML = `<span>⏳ 识别中 ${Math.round(m.progress * 100)}%</span>`;
+                            }
                         }
                     }
-                });
+                );
 
                 const lines = result.data.text.split('\n')
                     .map(line => line.trim())
                     .filter(line => line.length > 0);
 
+                // 提取单词
                 const extracted = [];
                 for (const line of lines) {
+                    // 匹配 "1. word" 或 "1 word"
                     const match = line.match(/^(\d+)[\.\s]+([a-zA-Z']+)/);
                     if (match) {
                         const num = parseInt(match[1]) - 1;
                         const word = match[2].toLowerCase().replace(/[^a-zA-Z']/g, '');
-                        extracted.push({ index: num, word: word });
+                        if (word) {
+                            extracted.push({ index: num, word: word });
+                        }
                     } else {
                         const word = line.split(/\s+/)[0].toLowerCase().replace(/[^a-zA-Z']/g, '');
                         if (word) {
@@ -1210,6 +1429,7 @@
                     }
                 }
 
+                // 填充到对应位置
                 ocrWords = [];
                 for (let i = 0; i < words.length; i++) {
                     ocrWords[i] = '';
@@ -1221,6 +1441,7 @@
                     }
                 }
 
+                // 如果数量不够，按顺序补齐
                 let fillIndex = 0;
                 for (let i = 0; i < words.length; i++) {
                     if (!ocrWords[i] && fillIndex < extracted.length) {
@@ -1280,7 +1501,7 @@
         }
 
         // ================================================================
-        // 8. 批量批改
+        // 9. 批量批改
         // ================================================================
         function batchCheck() {
             const inputs = document.querySelectorAll('#ocrWordList input');
@@ -1332,7 +1553,7 @@
         }
 
         // ================================================================
-        // 9. 显示结果
+        // 10. 显示结果
         // ================================================================
         function showFinalResult() {
             let correct = 0;
@@ -1378,75 +1599,6 @@
         }
 
         // ================================================================
-        // 10. 拍照
-        // ================================================================
-        async function openCamera() {
-            try {
-                if (stream) {
-                    stream.getTracks().forEach(t => t.stop());
-                    stream = null;
-                }
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment', width: 400, height: 300 }
-                });
-                video.srcObject = stream;
-                video.classList.remove('hidden');
-                capturedImage.classList.add('hidden');
-                cameraPlaceholder.classList.add('hidden');
-                isCameraOpen = true;
-            } catch (err) {
-                alert('无法打开相机：' + err.message + '\n请允许摄像头权限，或使用「选图」功能。');
-            }
-        }
-
-        function capturePhoto() {
-            if (!isCameraOpen || !stream) {
-                alert('请先点击「相机」');
-                return;
-            }
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth || 400;
-            canvas.height = video.videoHeight || 300;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const dataURL = canvas.toDataURL('image/jpeg', 0.8);
-            capturedImage.src = dataURL;
-            capturedImage.classList.remove('hidden');
-            video.classList.add('hidden');
-            if (stream) {
-                stream.getTracks().forEach(t => t.stop());
-                stream = null;
-                isCameraOpen = false;
-            }
-            performOCR(dataURL);
-        }
-
-        function uploadImage() {
-            fileInput.click();
-        }
-
-        function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                const dataURL = ev.target.result;
-                capturedImage.src = dataURL;
-                capturedImage.classList.remove('hidden');
-                video.classList.add('hidden');
-                cameraPlaceholder.classList.add('hidden');
-                if (stream) {
-                    stream.getTracks().forEach(t => t.stop());
-                    stream = null;
-                    isCameraOpen = false;
-                }
-                performOCR(dataURL);
-            };
-            reader.readAsDataURL(file);
-            fileInput.value = '';
-        }
-
-        // ================================================================
         // 11. 添加单词
         // ================================================================
         function addWord() {
@@ -1454,7 +1606,6 @@
             const zh = newWordZh.value.trim();
             const phonetic = newWordPhonetic.value.trim() || '';
             const example = newWordExample.value.trim() || '';
-            const exampleZh = example ? '' : ''; // 可后续完善
 
             if (!en || !zh) {
                 alert('请输入英文和中文！');
@@ -1465,7 +1616,6 @@
                 return;
             }
 
-            // 如果有例句但没有中文例句，提示
             let exampleZhInput = '';
             if (example) {
                 exampleZhInput = prompt('请输入例句的中文翻译：');
@@ -1544,9 +1694,11 @@
             checkBtn.addEventListener('click', showAnswer);
             resetBtn.addEventListener('click', resetQuizHandler);
 
+            // 相机 - 使用更可靠的方式
             openCameraBtn.addEventListener('click', openCamera);
             captureBtn.addEventListener('click', capturePhoto);
             uploadBtn.addEventListener('click', uploadImage);
+            retakeBtn.addEventListener('click', retakePhoto);
             fileInput.addEventListener('change', handleFileSelect);
 
             batchCheckBtn.addEventListener('click', batchCheck);
@@ -1562,7 +1714,7 @@
         init();
         console.log('🌸 初二英语听写小助手已加载！');
         console.log('📚 当前单元: Unit', currentUnit + 1, '单词数:', words.length);
-        console.log('💡 学习模式显示例句，听写模式完全空白！');
+        console.log('📷 拍照偏移问题已修复！使用视频实际尺寸截取。');
     </script>
 </body>
 </html>
