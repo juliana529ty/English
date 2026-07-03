@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🌸 初二英语听写小助手</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js">
+    </script>
+    <style>
+        /* ===== 全局重置 & 粉色主题 ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(145deg, #fff5f7 0%, #ffe4ec 100%);
+            min-height: 100vh;
+            padding: 16px 12px 30px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .app-container {
+            max-width: 480px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 42px;
+            padding: 24px 20px 32px;
+            box-shadow: 0 20px 60px rgba(255, 105, 135, 0.20), 0 8px 24px rgba(255, 150, 180, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .app-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #b3405a;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .app-title span {
+            font-size: 28px;
+        }
+
+        .mode-badge {
+            background: #f8ced9;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #8e3d52;
+            box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.7);
+        }
+
+        .progress-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 220, 230, 0.4);
+            border-radius: 60px;
+            padding: 8px 16px 8px 20px;
+            margin-bottom: 22px;
+            border: 1px solid rgba(255, 200, 210, 0.5);
+        }
+
+        .counter {
+            font-size: 18px;
+            font-weight: 600;
+            color: #7a3a4a;
+        }
+
+        .counter strong {
+            font-size: 26px;
+            color: #c44a6a;
+        }
+
+        .progress-bar-bg {
+            width: 100px;
+            height: 8px;
+            background: #fad4de;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #f98aa8, #e86080);
+            border-radius: 20px;
+            transition: width 0.3s ease;
+        }
+
+        /* ===== 单词卡片 - 听写模式隐藏文字 ===== */
+        .word-card {
+            background: white;
+            border-radius: 32px;
+            padding: 28px 16px 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 24px rgba(255, 100, 130, 0.10);
+            border: 1px solid rgba(255, 180, 200, 0.3);
+            text-align: center;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .word-en {
+            font-size: 38px;
+            font-weight: 700;
+            color: #3d202a;
+            letter-spacing: 1px;
+            line-height: 1.3;
+        }
+
+        .word-phonetic {
+            font-size: 20px;
+            color: #b06a7a;
+            margin-top: 6px;
+            font-family: 'Times New Roman', serif;
+            letter-spacing: 0.5px;
+        }
+
+        .word-zh {
+            font-size: 26px;
+            font-weight: 500;
+            color: #5a3340;
+            margin-top: 10px;
+            background: #fef0f3;
+            padding: 4px 18px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+
+        /* 听写模式下的隐藏状态 */
+        .dictation-hidden .word-en {
+            display: none;
+        }
+        .dictation-hidden .word-phonetic {
+            display: none;
+        }
+        .dictation-hidden .word-zh {
+            display: none;
+        }
+        .dictation-hidden .dictation-placeholder {
+            display: block !important;
+        }
+
+        .dictation-placeholder {
+            display: none;
+            font-size: 22px;
+            color: #b06a7a;
+            padding: 20px 0;
+        }
+        .dictation-placeholder .big-icon {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .dictation-placeholder .hint {
+            font-size: 16px;
+            color: #c08a9a;
+        }
+
+        /* 学习模式显示全部 */
+        .learn-mode .word-en {
+            display: block;
+        }
+        .learn-mode .word-phonetic {
+            display: block;
+        }
+        .learn-mode .word-zh {
+            display: inline-block;
+        }
+        .learn-mode .dictation-placeholder {
+            display: none !important;
+        }
+
+        /* ===== 控制按钮 ===== */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 16px 0 12px;
+        }
+
+        .btn {
+            border: none;
+            background: white;
+            padding: 14px 6px;
+            border-radius: 60px;
+            font-size: 17px;
+            font-weight: 600;
+            color: #4d2e38;
+            box-shadow: 0 4px 12px rgba(255, 130, 160, 0.15);
+            transition: all 0.15s ease;
+            border: 1px solid rgba(255, 200, 215, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+            background: #fce8ee;
+        }
+
+        .btn-primary {
+            background: #e86080;
+            color: white;
+            border: none;
+            box-shadow: 0 6px 18px rgba(232, 96, 128, 0.35);
+        }
+
+        .btn-primary:active {
+            background: #d14d6d;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #e86080;
+            color: #e86080;
+        }
+
+        .btn-success {
+            background: #5fb38a;
+            color: white;
+            border: none;
+            box-shadow: 0 6px 18px rgba(95, 179, 138, 0.3);
+        }
+
+        .btn-success:active {
+            background: #4a9a73;
+        }
+
+        .btn-warning {
+            background: #f5b06b;
+            color: white;
+            border: none;
+        }
+
+        .btn-full {
+            grid-column: span 2;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            transform: none;
+            pointer-events: none;
+        }
+
+        /* ===== 模式切换 ===== */
+        .mode-switch {
+            display: flex;
+            background: #fad8e0;
+            border-radius: 60px;
+            padding: 4px;
+            margin: 6px 0 16px;
+            border: 1px solid rgba(255, 200, 215, 0.4);
+        }
+
+        .mode-switch .btn {
+            flex: 1;
+            border-radius: 40px;
+            padding: 10px 6px;
+            font-size: 15px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            color: #7a4a58;
+        }
+
+        .mode-switch .btn.active {
+            background: white;
+            color: #c44a6a;
+            box-shadow: 0 4px 12px rgba(255, 100, 130, 0.2);
+            border: 1px solid rgba(255, 180, 200, 0.3);
+        }
+
+        /* ===== 相机区域 ===== */
+        .camera-area {
+            margin: 14px 0 12px;
+            border-radius: 28px;
+            overflow: hidden;
+            background: #fceaf0;
+            border: 2px dashed #f5b8c8;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .camera-area video,
+        .camera-area img {
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            border-radius: 20px;
+            background: #1a1114;
+        }
+
+        .camera-area .placeholder {
+            padding: 24px 10px;
+            color: #b06a7a;
+            font-size: 15px;
+        }
+
+        .camera-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .camera-actions .btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 10px 8px;
+            font-size: 14px;
+        }
+
+        .ocr-result {
+            background: white;
+            border-radius: 20px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #2d1a22;
+            border: 1px solid #f8ced9;
+            word-break: break-all;
+        }
+
+        .ocr-result label {
+            font-size: 13px;
+            color: #a06a7a;
+            font-weight: 400;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* ===== 批改结果 ===== */
+        .result-box {
+            margin-top: 16px;
+            background: white;
+            border-radius: 28px;
+            padding: 16px 18px;
+            border: 2px solid #f8ced9;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f5e0e6;
+            font-size: 16px;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-correct {
+            color: #4a9a73;
+            font-weight: 600;
+        }
+
+        .result-wrong {
+            color: #d94f6a;
+            font-weight: 600;
+        }
+
+        .result-stats {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            padding: 10px 0 4px;
+            color: #3d202a;
+        }
+
+        .error-list {
+            margin-top: 14px;
+            background: #fff5f7;
+            border-radius: 24px;
+            padding: 12px 16px;
+            border: 1px solid #f8ced9;
+        }
+
+        .error-list h4 {
+            color: #b3405a;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .error-tag {
+            display: inline-block;
+            background: #f8ced9;
+            padding: 4px 14px;
+            border-radius: 40px;
+            margin: 4px 6px 4px 0;
+            font-size: 15px;
+            color: #6a3342;
+        }
+
+        /* ===== 添加单词 ===== */
+        .add-word-area {
+            margin-top: 20px;
+            background: rgba(255, 240, 245, 0.6);
+            border-radius: 28px;
+            padding: 14px 16px;
+            border: 1px solid #fad4de;
+        }
+
+        .add-word-area input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 40px;
+            border: 1px solid #f5b8c8;
+            font-size: 16px;
+            margin-bottom: 8px;
+            background: white;
+            outline: none;
+        }
+
+        .add-word-area input:focus {
+            border-color: #e86080;
+            box-shadow: 0 0 0 3px rgba(232, 96, 128, 0.15);
+        }
+
+        .add-word-area .btn {
+            padding: 10px;
+            font-size: 15px;
+        }
+
+        .small-note {
+            font-size: 12px;
+            color: #b06a7a;
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .flex {
+            display: flex;
+            gap: 8px;
+        }
+        .gap-6 {
+            gap: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container" id="app">
+        <!-- 头部 -->
+        <div class="app-header">
+            <div class="app-title"><span>🌸</span> 听写小助手</div>
+            <span class="mode-badge" id="modeBadge">📖 学习模式</span>
+        </div>
+
+        <!-- 进度 -->
+        <div class="progress-area">
+            <span class="counter">第 <strong id="currentNum">1</strong> / <span id="totalNum">0</span> 个</span>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <!-- 模式切换 -->
+        <div class="mode-switch">
+            <button class="btn active" data-mode="learn" id="modeLearn">📚 学习模式</button>
+            <button class="btn" data-mode="dictation" id="modeDictation">🎧 听写模式</button>
+        </div>
+
+        <!-- 单词卡片 -->
+        <div class="word-card learn-mode" id="wordCard">
+            <div class="word-en" id="wordEn">beautiful</div>
+            <div class="word-phonetic" id="wordPhonetic">/ˈbjuːtɪfl/</div>
+            <div class="word-zh" id="wordZh">美丽的</div>
+            <div class="dictation-placeholder">
+                <span class="big-icon">🔊</span>
+                点击「朗读」听写<br>
+                <span class="hint">听完后在纸上写答案，然后拍照上传</span>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="action-grid">
+            <button class="btn btn-primary" id="speakBtn">🔊 朗读</button>
+            <button class="btn btn-outline" id="nextBtn">⏭ 下一个</button>
+            <button class="btn btn-warning" id="resetBtn">🔄 重新开始</button>
+            <button class="btn btn-success" id="checkBtn">✅ 查看答案</button>
+        </div>
+
+        <!-- 拍照 & OCR -->
+        <div class="camera-area" id="cameraArea">
+            <div id="cameraPlaceholder" class="placeholder">
+                📸 点击下方按钮拍照或上传图片
+            </div>
+            <video id="video" autoplay playsinline class="hidden"></video>
+            <img id="capturedImage" class="hidden" alt="拍摄的照片">
+
+            <div class="camera-actions">
+                <button class="btn btn-primary" id="openCameraBtn">📷 打开相机</button>
+                <button class="btn" id="captureBtn">📸 拍照</button>
+                <button class="btn" id="uploadBtn">🖼 选图</button>
+                <input type="file" id="fileInput" accept="image/*" style="display:none">
+            </div>
+
+            <div class="ocr-result hidden" id="ocrResult">
+                <label>✍️ OCR 识别结果（可手动编辑）</label>
+                <input type="text" id="ocrText" style="width:100%;padding:8px 12px;border-radius:40px;border:1px solid #f5b8c8;font-size:18px;background:#fef8fa;outline:none;" placeholder="识别或输入你的答案...">
+            </div>
+        </div>
+
+        <!-- 批改 & 结果 -->
+        <div class="result-box hidden" id="resultBox">
+            <div class="result-stats" id="resultStats">✅ 0 / 0 正确</div>
+            <div id="resultDetail"></div>
+        </div>
+
+        <!-- 错词本 -->
+        <div class="error-list hidden" id="errorList">
+            <h4>📕 错词本</h4>
+            <div id="errorTags"></div>
+        </div>
+
+        <!-- 添加单词 -->
+        <div class="add-word-area">
+            <div class="flex gap-6">
+                <input type="text" id="newWordEn" placeholder="英文单词 (如: excellent)">
+                <input type="text" id="newWordZh" placeholder="中文 (如: 极好的)">
+            </div>
+            <input type="text" id="newWordPhonetic" placeholder="音标 (如: /ˈeksələnt/，选填)">
+            <button class="btn btn-primary btn-full" id="addWordBtn">➕ 添加新单词到词库</button>
+            <div class="small-note">💡 添加后自动保存，刷新页面不会丢失</div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // 1. 词库（人教版初二上册）
+        // ================================================================
+        const DEFAULT_WORDS = [
+            { en: 'anyone', zh: '任何人', phonetic: '/ˈeniwʌn/' },
+            { en: 'anywhere', zh: '任何地方', phonetic: '/ˈeniweə(r)/' },
+            { en: 'wonderful', zh: '精彩的；绝妙的', phonetic: '/ˈwʌndəfl/' },
+            { en: 'few', zh: '不多；很少', phonetic: '/fjuː/' },
+            { en: 'most', zh: '最多；大多数', phonetic: '/məʊst/' },
+            { en: 'something', zh: '某事物', phonetic: '/ˈsʌmθɪŋ/' },
+            { en: 'nothing', zh: '没有什么', phonetic: '/ˈnʌθɪŋ/' },
+            { en: 'everyone', zh: '每个人', phonetic: '/ˈevriwʌn/' },
+            { en: 'myself', zh: '我自己', phonetic: '/maɪˈself/' },
+            { en: 'yourself', zh: '你自己', phonetic: '/jɔːˈself/' },
+            { en: 'hen', zh: '母鸡', phonetic: '/hen/' },
+            { en: 'pig', zh: '猪', phonetic: '/pɪɡ/' },
+            { en: 'bored', zh: '厌倦的；烦闷的', phonetic: '/bɔːd/' },
+            { en: 'someone', zh: '某人', phonetic: '/ˈsʌmwʌn/' },
+            { en: 'diary', zh: '日记；日记簿', phonetic: '/ˈdaɪəri/' },
+            { en: 'activity', zh: '活动', phonetic: '/ækˈtɪvəti/' },
+            { en: 'decide', zh: '决定', phonetic: '/dɪˈsaɪd/' },
+            { en: 'try', zh: '尝试；设法', phonetic: '/traɪ/' },
+            { en: 'paragliding', zh: '滑翔伞运动', phonetic: '/ˈpærəɡlaɪdɪŋ/' },
+            { en: 'feel like', zh: '给……的感觉；感受到', phonetic: '/fiːl laɪk/' },
+            { en: 'bird', zh: '鸟', phonetic: '/bɜːd/' },
+            { en: 'bicycle', zh: '自行车', phonetic: '/ˈbaɪsɪkl/' },
+            { en: 'building', zh: '建筑物', phonetic: '/ˈbɪldɪŋ/' },
+            { en: 'trader', zh: '商人', phonetic: '/ˈtreɪdə(r)/' },
+            { en: 'wonder', zh: '想知道；惊讶', phonetic: '/ˈwʌndə(r)/' },
+            { en: 'difference', zh: '差别；差异', phonetic: '/ˈdɪfrəns/' },
+            { en: 'top', zh: '顶部；表面', phonetic: '/tɒp/' },
+            { en: 'wait', zh: '等待；等候', phonetic: '/weɪt/' },
+            { en: 'umbrella', zh: '伞；雨伞', phonetic: '/ʌmˈbrelə/' },
+            { en: 'wet', zh: '湿的；潮湿的', phonetic: '/wet/' },
+            { en: 'below', zh: '在……下面', phonetic: '/bɪˈləʊ/' },
+            { en: 'enough', zh: '足够的(地)', phonetic: '/ɪˈnʌf/' },
+            { en: 'hungry', zh: '饥饿的', phonetic: '/ˈhʌŋɡri/' },
+            { en: 'dislike', zh: '不喜欢；厌恶', phonetic: '/dɪsˈlaɪk/' },
+            { en: 'important', zh: '重要的', phonetic: '/ɪmˈpɔːtnt/' },
+            { en: 'habit', zh: '习惯', phonetic: '/ˈhæbɪt/' },
+            { en: 'healthy', zh: '健康的', phonetic: '/ˈhelθi/' },
+            { en: 'unhealthy', zh: '不健康的', phonetic: '/ʌnˈhelθi/' },
+            { en: 'truly', zh: '真正；确实', phonetic: '/ˈtruːli/' },
+            { en: 'care', zh: '在意；担忧', phonetic: '/keə(r)/' },
+            { en: 'relationship', zh: '关系', phonetic: '/rɪˈleɪʃnʃɪp/' },
+            { en: 'cloud', zh: '云', phonetic: '/klaʊd/' },
+            { en: 'beach', zh: '海滩', phonetic: '/biːtʃ/' },
+            { en: 'museum', zh: '博物馆', phonetic: '/mjuˈziːəm/' },
+            { en: 'countryside', zh: '乡村', phonetic: '/ˈkʌntrisaɪd/' },
+            { en: 'sunshine', zh: '阳光', phonetic: '/ˈsʌnʃaɪn/' },
+            { en: 'hope', zh: '希望', phonetic: '/həʊp/' },
+            { en: 'meaning', zh: '意思；意义', phonetic: '/ˈmiːnɪŋ/' },
+            { en: 'discuss', zh: '讨论；商量', phonetic: '/dɪˈskʌs/' },
+            { en: 'promise', zh: '承诺；诺言', phonetic: '/ˈprɒmɪs/' },
+            { en: 'beginning', zh: '开始；开端', phonetic: '/bɪˈɡɪnɪŋ/' },
+            { en: 'improve', zh: '改进；改善', phonetic: '/ɪmˈpruːv/' },
+            { en: 'physical', zh: '身体的', phonetic: '/ˈfɪzɪkl/' },
+            { en: 'themselves', zh: '他们自己', phonetic: '/ðəmˈselvz/' },
+            { en: 'science', zh: '科学', phonetic: '/ˈsaɪəns/' },
+            { en: 'weekend', zh: '周末', phonetic: '/ˌwiːkˈend/' }
+        ];
+
+        // ================================================================
+        // 2. 状态管理
+        // ================================================================
+        let words = [];
+        let currentIndex = 0;
+        let mode = 'learn';
+        let answered = false; // 是否已显示答案
+        let results = [];
+        let errorWords = [];
+
+        const $ = id => document.getElementById(id);
+        const wordEn = $('wordEn');
+        const wordPhonetic = $('wordPhonetic');
+        const wordZh = $('wordZh');
+        const wordCard = $('wordCard');
+        const currentNum = $('currentNum');
+        const totalNum = $('totalNum');
+        const progressFill = $('progressFill');
+        const modeBadge = $('modeBadge');
+        const modeLearn = $('modeLearn');
+        const modeDictation = $('modeDictation');
+        const speakBtn = $('speakBtn');
+        const nextBtn = $('nextBtn');
+        const resetBtn = $('resetBtn');
+        const checkBtn = $('checkBtn');
+        const resultBox = $('resultBox');
+        const resultStats = $('resultStats');
+        const resultDetail = $('resultDetail');
+        const errorList = $('errorList');
+        const errorTags = $('errorTags');
+        const ocrResult = $('ocrResult');
+        const ocrText = $('ocrText');
+        const cameraPlaceholder = $('cameraPlaceholder');
+        const video = $('video');
+        const capturedImage = $('capturedImage');
+        const openCameraBtn = $('openCameraBtn');
+        const captureBtn = $('captureBtn');
+        const uploadBtn = $('uploadBtn');
+        const fileInput = $('fileInput');
+        const newWordEn = $('newWordEn');
+        const newWordZh = $('newWordZh');
+        const newWordPhonetic = $('newWordPhonetic');
+        const addWordBtn = $('addWordBtn');
+
+        let stream = null;
+        let isCameraOpen = false;
+
+        // ================================================================
+        // 3. 初始化
+        // ================================================================
+        function init() {
+            const saved = localStorage.getItem('dictation_words');
+            if (saved) {
+                try { words = JSON.parse(saved); } catch (e) { words = [...DEFAULT_WORDS]; }
+            } else {
+                words = [...DEFAULT_WORDS];
+                saveWords();
+            }
+            totalNum.textContent = words.length;
+            resetQuiz();
+            updateUI();
+            bindEvents();
+        }
+
+        function saveWords() {
+            localStorage.setItem('dictation_words', JSON.stringify(words));
+        }
+
+        function resetQuiz() {
+            currentIndex = 0;
+            results = [];
+            errorWords = [];
+            answered = (mode === 'learn');
+            resultBox.classList.add('hidden');
+            errorList.classList.add('hidden');
+            ocrResult.classList.add('hidden');
+            ocrText.value = '';
+            updateUI();
+        }
+
+        // ================================================================
+        // 4. 渲染 UI（核心修复：听写模式隐藏所有文字）
+        // ================================================================
+        function updateUI() {
+            if (words.length === 0) {
+                wordEn.textContent = '🎉 词库为空';
+                wordPhonetic.textContent = '';
+                wordZh.textContent = '请添加单词';
+                currentNum.textContent = '0';
+                progressFill.style.width = '0%';
+                return;
+            }
+
+            const idx = Math.min(currentIndex, words.length - 1);
+            const w = words[idx];
+
+            // 先更新文字内容（无论显示与否）
+            wordEn.textContent = w.en;
+            wordPhonetic.textContent = w.phonetic || '';
+            wordZh.textContent = w.zh;
+
+            // 根据模式切换卡片样式
+            if (mode === 'learn') {
+                // 学习模式：显示所有内容
+                wordCard.className = 'word-card learn-mode';
+                wordEn.style.display = 'block';
+                wordPhonetic.style.display = 'block';
+                wordZh.style.display = 'inline-block';
+                answered = true;
+            } else {
+                // 听写模式：默认全部隐藏
+                wordCard.className = 'word-card dictation-hidden';
+                wordEn.style.display = 'none';
+                wordPhonetic.style.display = 'none';
+                wordZh.style.display = 'none';
+
+                // 如果点击了"查看答案"，才显示
+                if (answered) {
+                    wordEn.style.display = 'block';
+                    wordPhonetic.style.display = 'block';
+                    wordZh.style.display = 'inline-block';
+                    wordCard.className = 'word-card learn-mode';
+                }
+            }
+
+            currentNum.textContent = idx + 1;
+            totalNum.textContent = words.length;
+            const pct = words.length > 0 ? ((idx + 1) / words.length * 100) : 0;
+            progressFill.style.width = Math.min(pct, 100) + '%';
+
+            modeBadge.textContent = mode === 'learn' ? '📖 学习模式' : '🎧 听写模式';
+
+            // 清除旧的 OCR 结果
+            ocrResult.classList.add('hidden');
+            ocrText.value = '';
+        }
+
+        // ================================================================
+        // 5. TTS 语音
+        // ================================================================
+        function speakWord() {
+            if (words.length === 0) return;
+            const w = words[Math.min(currentIndex, words.length - 1)];
+            const text = w.en;
+
+            if (!window.speechSynthesis) {
+                alert('抱歉，您的浏览器不支持语音功能。');
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+
+            let voices = window.speechSynthesis.getVoices();
+            if (voices.length === 0) {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    voices = window.speechSynthesis.getVoices();
+                    doSpeak(text, voices);
+                };
+                setTimeout(() => {
+                    if (voices.length === 0) {
+                        doSpeak(text, []);
+                    }
+                }, 3000);
+            } else {
+                doSpeak(text, voices);
+            }
+        }
+
+        function doSpeak(text, voices) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85;
+            utterance.pitch = 1.0;
+            utterance.volume = 1;
+
+            let selected = null;
+            for (const v of voices) {
+                if (v.lang === 'en-US' && (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes(
+                        'Alex'))) {
+                    selected = v;
+                    break;
+                }
+            }
+            if (selected) {
+                utterance.voice = selected;
+            } else if (voices.length > 0) {
+                for (const v of voices) {
+                    if (v.lang.startsWith('en')) {
+                        utterance.voice = v;
+                        break;
+                    }
+                }
+            }
+
+            window.speechSynthesis.speak(utterance);
+
+            let played = false;
+            utterance.onstart = () => { played = true; };
+            setTimeout(() => {
+                if (!played) {
+                    window.speechSynthesis.cancel();
+                    const retry = new SpeechSynthesisUtterance(text);
+                    retry.lang = 'en-US';
+                    retry.rate = 0.85;
+                    window.speechSynthesis.speak(retry);
+                }
+            }, 4000);
+        }
+
+        if (window.speechSynthesis) {
+            window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
+
+        // ================================================================
+        // 6. 核心逻辑
+        // ================================================================
+        function nextWord() {
+            if (words.length === 0) return;
+
+            if (mode === 'dictation' && !answered) {
+                if (!confirm('当前单词还未查看答案，确定要跳过吗？')) {
+                    return;
+                }
+            }
+
+            if (mode === 'dictation' && answered) {
+                saveCurrentResult();
+            }
+
+            if (currentIndex < words.length - 1) {
+                currentIndex++;
+                answered = (mode === 'learn');
+                if (mode === 'dictation') answered = false;
+                updateUI();
+                resultBox.classList.add('hidden');
+                ocrResult.classList.add('hidden');
+                // 切换到听写模式时，自动朗读
+                if (mode === 'dictation') {
+                    setTimeout(() => speakWord(), 300);
+                }
+            } else {
+                if (mode === 'dictation' && answered) {
+                    saveCurrentResult();
+                }
+                showFinalResult();
+            }
+        }
+
+        function showAnswer() {
+            if (mode === 'learn') {
+                speakWord();
+                return;
+            }
+            if (words.length === 0) return;
+            answered = true;
+            updateUI();
+            speakWord();
+        }
+
+        function resetQuizHandler() {
+            if (confirm('重新开始会清除当前进度，确定吗？')) {
+                resetQuiz();
+            }
+        }
+
+        // ================================================================
+        // 7. 批改
+        // ================================================================
+        function saveCurrentResult() {
+            if (words.length === 0 || currentIndex >= words.length) return;
+            const w = words[currentIndex];
+            const userAns = ocrText.value.trim() || '';
+            const isCorrect = userAns.toLowerCase() === w.en.toLowerCase();
+            results[currentIndex] = { en: w.en, zh: w.zh, userAnswer: userAns, correct: isCorrect };
+            if (!isCorrect && userAns) {
+                errorWords.push(w.en);
+            }
+            updateErrorList();
+        }
+
+        function checkAll() {
+            if (mode === 'learn') {
+                alert('📖 学习模式下无需批改，切换到「听写模式」再试试吧！');
+                return;
+            }
+            if (currentIndex < words.length - 1) {
+                alert('还没听完所有单词呢！先完成全部听写再批改吧 📝');
+                return;
+            }
+            if (answered) {
+                saveCurrentResult();
+            }
+            showFinalResult();
+        }
+
+        function showFinalResult() {
+            let correct = 0;
+            let total = words.length;
+            let detailHTML = '';
+            for (let i = 0; i < total; i++) {
+                const r = results[i];
+                if (r) {
+                    if (r.correct) correct++;
+                    const status = r.correct ? '✅' : '❌';
+                    const userShow = r.userAnswer || '(未作答)';
+                    detailHTML += `
+                        <div class="result-item">
+                            <span>${status} <strong>${r.en}</strong> <span style="color:#b06a7a;font-size:14px;">${r.zh}</span></span>
+                            <span style="color:${r.correct ? '#4a9a73' : '#d94f6a'};font-size:15px;">${userShow}</span>
+                        </div>
+                    `;
+                } else {
+                    const w = words[i];
+                    detailHTML += `
+                        <div class="result-item">
+                            <span>⚠️ <strong>${w.en}</strong> <span style="color:#b06a7a;font-size:14px;">${w.zh}</span></span>
+                            <span style="color:#d94f6a;">(未作答)</span>
+                        </div>
+                    `;
+                }
+            }
+            resultStats.textContent = `✅ ${correct} / ${total} 正确 (${Math.round(correct/total*100)}%)`;
+            resultDetail.innerHTML = detailHTML;
+            resultBox.classList.remove('hidden');
+            updateErrorList();
+        }
+
+        function updateErrorList() {
+            const unique = [...new Set(errorWords)];
+            if (unique.length === 0) {
+                errorList.classList.add('hidden');
+                return;
+            }
+            errorList.classList.remove('hidden');
+            errorTags.innerHTML = unique.map(e => `<span class="error-tag">${e}</span>`).join(' ');
+        }
+
+        // ================================================================
+        // 8. 拍照 & OCR
+        // ================================================================
+        async function openCamera() {
+            try {
+                if (stream) {
+                    stream.getTracks().forEach(t => t.stop());
+                    stream = null;
+                }
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 400,
+                        height: 300 } });
+                video.srcObject = stream;
+                video.classList.remove('hidden');
+                capturedImage.classList.add('hidden');
+                cameraPlaceholder.classList.add('hidden');
+                isCameraOpen = true;
+            } catch (err) {
+                alert('无法打开相机：' + err.message + '\n请允许摄像头权限，或使用「选图」功能上传图片。');
+            }
+        }
+
+        function capturePhoto() {
+            if (!isCameraOpen || !stream) {
+                alert('请先点击「打开相机」');
+                return;
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || 400;
+            canvas.height = video.videoHeight || 300;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+            capturedImage.src = dataURL;
+            capturedImage.classList.remove('hidden');
+            video.classList.add('hidden');
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+                stream = null;
+                isCameraOpen = false;
+            }
+            performOCR(dataURL);
+        }
+
+        function uploadImage() {
+            fileInput.click();
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const dataURL = ev.target.result;
+                capturedImage.src = dataURL;
+                capturedImage.classList.remove('hidden');
+                video.classList.add('hidden');
+                cameraPlaceholder.classList.add('hidden');
+                if (stream) {
+                    stream.getTracks().forEach(t => t.stop());
+                    stream = null;
+                    isCameraOpen = false;
+                }
+                performOCR(dataURL);
+            };
+            reader.readAsDataURL(file);
+            fileInput.value = '';
+        }
+
+        async function performOCR(imageData) {
+            ocrResult.classList.remove('hidden');
+            ocrText.value = '⏳ 识别中...';
+            try {
+                const result = await Tesseract.recognize(imageData, 'eng', {
+                    logger: (m) => {}
+                });
+                const text = result.data.text.trim();
+                const lines = text.split('\n').filter(line => line.trim().length > 0);
+                let cleaned = '';
+                if (lines.length > 0) {
+                    const firstLine = lines[0].trim();
+                    const words = firstLine.split(/\s+/);
+                    cleaned = words[0] || firstLine;
+                    cleaned = cleaned.replace(/[.,!?;:"]/g, '');
+                }
+                ocrText.value = cleaned || '（未识别到文字，请手动输入）';
+            } catch (err) {
+                ocrText.value = '识别失败，请手动输入';
+                console.warn('OCR Error:', err);
+            }
+        }
+
+        // ================================================================
+        // 9. 添加单词
+        // ================================================================
+        function addWord() {
+            const en = newWordEn.value.trim();
+            const zh = newWordZh.value.trim();
+            const phonetic = newWordPhonetic.value.trim() || '';
+            if (!en || !zh) {
+                alert('请输入英文和中文！');
+                return;
+            }
+            if (words.some(w => w.en.toLowerCase() === en.toLowerCase())) {
+                alert('该单词已存在！');
+                return;
+            }
+            words.push({ en, zh, phonetic });
+            saveWords();
+            totalNum.textContent = words.length;
+            newWordEn.value = '';
+            newWordZh.value = '';
+            newWordPhonetic.value = '';
+            alert(`✅ 已添加单词: ${en} - ${zh}`);
+            if (words.length === 1) {
+                currentIndex = 0;
+                answered = (mode === 'learn');
+                updateUI();
+            }
+        }
+
+        // ================================================================
+        // 10. 事件绑定
+        // ================================================================
+        function bindEvents() {
+            modeLearn.addEventListener('click', () => {
+                mode = 'learn';
+                answered = true;
+                modeLearn.classList.add('active');
+                modeDictation.classList.remove('active');
+                resetQuiz();
+                updateUI();
+            });
+
+            modeDictation.addEventListener('click', () => {
+                mode = 'dictation';
+                answered = false;
+                modeDictation.classList.add('active');
+                modeLearn.classList.remove('active');
+                resetQuiz();
+                updateUI();
+                // 进入听写模式后自动朗读第一个
+                setTimeout(() => speakWord(), 500);
+            });
+
+            speakBtn.addEventListener('click', speakWord);
+            nextBtn.addEventListener('click', nextWord);
+            checkBtn.addEventListener('click', showAnswer);
+            resetBtn.addEventListener('click', resetQuizHandler);
+
+            openCameraBtn.addEventListener('click', openCamera);
+            captureBtn.addEventListener('click', capturePhoto);
+            uploadBtn.addEventListener('click', uploadImage);
+            fileInput.addEventListener('change', handleFileSelect);
+
+            addWordBtn.addEventListener('click', addWord);
+            newWordEn.addEventListener('keydown', (e) => { if (e.key === 'Enter') addWord(); });
+            newWordZh.addEventListener('keydown', (e) => { if (e.key === 'Enter') addWord(); });
+        }
+
+        // ================================================================
+        // 启动
+        // ================================================================
+        init();
+        console.log('🌸 初二英语听写小助手已加载！');
+        console.log('📚 词库数量:', words.length);
+        console.log('💡 切换到「听写模式」：不显示任何文字，纯听力练习！');
+    </script>
+</body>
+</html>
