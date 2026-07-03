@@ -173,6 +173,11 @@
             font-size: 16px;
             color: #c08a9a;
         }
+        .dictation-placeholder .progress-text {
+            font-size: 14px;
+            color: #d4a0b0;
+            margin-top: 8px;
+        }
 
         .learn-mode .word-en {
             display: block !important;
@@ -262,6 +267,11 @@
             border: none;
         }
 
+        .btn:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
         .mode-switch {
             display: flex;
             background: #fad8e0;
@@ -334,11 +344,7 @@
             border-radius: 20px;
             padding: 12px 16px;
             margin-top: 12px;
-            font-size: 18px;
-            font-weight: 500;
-            color: #2d1a22;
             border: 1px solid #f8ced9;
-            word-break: break-all;
         }
 
         .ocr-result label {
@@ -349,23 +355,60 @@
             margin-bottom: 4px;
         }
 
-        .check-result {
-            margin-top: 10px;
-            padding: 10px 16px;
-            border-radius: 20px;
-            font-size: 18px;
+        .ocr-word-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f5e0e6;
+        }
+
+        .ocr-word-item:last-child {
+            border-bottom: none;
+        }
+
+        .ocr-word-item .index {
+            font-size: 14px;
+            color: #b06a7a;
+            min-width: 30px;
             font-weight: 600;
+        }
+
+        .ocr-word-item input {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 30px;
+            border: 1px solid #f5b8c8;
+            font-size: 16px;
+            background: #fef8fa;
+            outline: none;
+        }
+
+        .ocr-word-item input:focus {
+            border-color: #e86080;
+            box-shadow: 0 0 0 3px rgba(232, 96, 128, 0.12);
+        }
+
+        .ocr-word-item .status {
+            font-size: 20px;
+            min-width: 30px;
             text-align: center;
         }
 
-        .check-result.correct {
-            background: #d4f0e0;
-            color: #2d7a55;
+        .check-result-batch {
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: 20px;
+            background: #f8f0f2;
+            text-align: center;
+            font-weight: 600;
+            color: #5a3340;
         }
 
-        .check-result.wrong {
-            background: #fce4e8;
-            color: #c44a6a;
+        .check-result-batch .btn {
+            margin-top: 8px;
+            padding: 10px 20px;
+            font-size: 15px;
         }
 
         .result-box {
@@ -477,6 +520,18 @@
         .text-center {
             text-align: center;
         }
+        .text-success {
+            color: #4a9a73;
+        }
+        .text-danger {
+            color: #d94f6a;
+        }
+        .text-muted {
+            color: #b06a7a;
+        }
+        .fw-bold {
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -507,6 +562,7 @@
                 <span class="big-icon">🔊</span>
                 点击「朗读」听写<br>
                 <span class="hint">听完后在纸上写答案</span>
+                <div class="progress-text" id="dictationProgress">已听写: 0 / 0</div>
             </div>
         </div>
 
@@ -517,10 +573,10 @@
             <button class="btn btn-success" id="checkBtn">✅ 查看答案</button>
         </div>
 
-        <!-- 拍照 & OCR -->
+        <!-- 拍照 & OCR - 批量识别 -->
         <div class="camera-area" id="cameraArea">
             <div id="cameraPlaceholder" class="placeholder">
-                📸 点击下方按钮拍照或上传图片
+                📸 全部听写完成后，点击下方拍照上传整页答案
             </div>
             <video id="video" autoplay playsinline class="hidden"></video>
             <img id="capturedImage" class="hidden" alt="拍摄的照片">
@@ -532,11 +588,14 @@
                 <input type="file" id="fileInput" accept="image/*" style="display:none">
             </div>
 
+            <!-- 批量识别结果 -->
             <div class="ocr-result hidden" id="ocrResult">
-                <label>✍️ OCR 识别结果（可手动编辑）</label>
-                <input type="text" id="ocrText" style="width:100%;padding:8px 12px;border-radius:40px;border:1px solid #f5b8c8;font-size:18px;background:#fef8fa;outline:none;" placeholder="识别或输入你的答案...">
-                <button class="btn btn-primary btn-full mt-8" id="submitAnswerBtn">✅ 提交并检查</button>
-                <div id="checkResult" class="check-result hidden"></div>
+                <label>✍️ 识别结果（按顺序对照填入，可手动修改）</label>
+                <div id="ocrWordList"></div>
+                <div class="check-result-batch" id="batchCheckArea">
+                    <div id="batchStatus">📝 请先确认所有答案正确，然后点击批改</div>
+                    <button class="btn btn-primary" id="batchCheckBtn">📊 批量批改所有单词</button>
+                </div>
             </div>
         </div>
 
@@ -630,7 +689,8 @@
         let answered = false;
         let results = [];
         let errorWords = [];
-        let currentChecked = false; // 当前单词是否已批改
+        let dictationCount = 0; // 已听写数量
+        let ocrWords = []; // OCR识别出的单词列表
 
         const $ = id => document.getElementById(id);
         const wordEn = $('wordEn');
@@ -653,9 +713,10 @@
         const errorList = $('errorList');
         const errorTags = $('errorTags');
         const ocrResult = $('ocrResult');
-        const ocrText = $('ocrText');
-        const checkResult = $('checkResult');
-        const submitAnswerBtn = $('submitAnswerBtn');
+        const ocrWordList = $('ocrWordList');
+        const batchStatus = $('batchStatus');
+        const batchCheckBtn = $('batchCheckBtn');
+        const dictationProgress = $('dictationProgress');
         const cameraPlaceholder = $('cameraPlaceholder');
         const video = $('video');
         const capturedImage = $('capturedImage');
@@ -694,13 +755,13 @@
             currentIndex = 0;
             results = [];
             errorWords = [];
+            ocrWords = [];
+            dictationCount = 0;
             answered = (mode === 'learn');
-            currentChecked = false;
             resultBox.classList.add('hidden');
             errorList.classList.add('hidden');
             ocrResult.classList.add('hidden');
-            checkResult.classList.add('hidden');
-            ocrText.value = '';
+            ocrWordList.innerHTML = '';
             updateUI();
         }
 
@@ -712,6 +773,7 @@
                 wordZh.textContent = '请添加单词';
                 currentNum.textContent = '0';
                 progressFill.style.width = '0%';
+                dictationProgress.textContent = '已听写: 0 / 0';
                 return;
             }
 
@@ -728,9 +790,6 @@
             } else {
                 wordCard.className = 'word-card dictation-hidden';
                 if (answered) {
-                    wordEn.style.display = 'block';
-                    wordPhonetic.style.display = 'block';
-                    wordZh.style.display = 'inline-block';
                     wordCard.className = 'word-card learn-mode';
                 }
             }
@@ -742,20 +801,12 @@
 
             modeBadge.textContent = mode === 'learn' ? '📖 学习模式' : '🎧 听写模式';
 
-            // 如果当前单词已批改过，显示结果
-            if (results[idx]) {
-                const r = results[idx];
-                if (r.userAnswer) {
-                    ocrResult.classList.remove('hidden');
-                    ocrText.value = r.userAnswer;
-                    showCheckResult(r.correct);
-                }
-            } else {
-                // 未批改，清除显示
-                if (mode === 'dictation') {
-                    ocrResult.classList.add('hidden');
-                    checkResult.classList.add('hidden');
-                }
+            // 更新听写进度
+            dictationProgress.textContent = `已听写: ${dictationCount} / ${words.length}`;
+
+            // 如果所有单词已听完，提示拍照
+            if (mode === 'dictation' && dictationCount >= words.length) {
+                cameraPlaceholder.textContent = '🎉 所有单词已听完！请拍照上传你的答案吧 📸';
             }
         }
 
@@ -785,6 +836,16 @@
                 }, 3000);
             } else {
                 doSpeak(text, voices);
+            }
+
+            // 听写模式下，朗读后标记已听写
+            if (mode === 'dictation' && !answered) {
+                // 如果当前单词还没显示答案，增加计数
+                const idx = Math.min(currentIndex, words.length - 1);
+                if (!results[idx]) {
+                    dictationCount = Math.max(dictationCount, idx + 1);
+                    updateUI();
+                }
             }
         }
 
@@ -840,38 +901,28 @@
         function nextWord() {
             if (words.length === 0) return;
 
-            // 如果当前单词有识别结果但未提交检查，自动保存
-            if (mode === 'dictation' && ocrText.value.trim() && !results[currentIndex]) {
-                if (confirm('当前单词的答案还未检查，要提交并检查吗？')) {
-                    submitAnswer();
-                    return;
-                }
-            }
-
             if (currentIndex < words.length - 1) {
                 currentIndex++;
                 answered = (mode === 'learn');
                 if (mode === 'dictation') answered = false;
-                currentChecked = false;
                 updateUI();
                 ocrResult.classList.add('hidden');
-                checkResult.classList.add('hidden');
                 resultBox.classList.add('hidden');
-                // 自动朗读
                 if (mode === 'dictation') {
-                    setTimeout(() => speakWord(), 300);
+                    setTimeout(() => speakWord(), 400);
                 }
             } else {
                 // 已经是最后一个
-                if (mode === 'dictation') {
-                    // 检查是否所有单词都已批改
-                    const allChecked = words.every((_, i) => results[i]);
-                    if (!allChecked) {
-                        alert('还有单词未批改！请先提交所有答案再查看结果。');
-                        return;
-                    }
+                if (mode === 'dictation' && dictationCount >= words.length) {
+                    // 所有单词已听完，提示拍照
+                    alert('🎉 所有单词已听完！请拍照上传你的答案，然后点击「批量批改」');
+                    cameraPlaceholder.textContent = '🎉 所有单词已听完！请拍照上传你的答案吧 📸';
+                } else if (mode === 'dictation') {
+                    // 还没听完，自动朗读当前
+                    speakWord();
+                } else {
+                    alert('🎉 已学完所有单词！');
                 }
-                showFinalResult();
             }
         }
 
@@ -887,58 +938,144 @@
         }
 
         function resetQuizHandler() {
-            if (confirm('重新开始会清除当前进度，确定吗？')) {
+            if (confirm('重新开始会清除所有进度，确定吗？')) {
                 resetQuiz();
             }
         }
 
-        // ===== 提交答案 & 检查 =====
-        function submitAnswer() {
-            if (mode === 'learn') {
-                alert('📖 学习模式下无需检查，切换到「听写模式」再试试吧！');
-                return;
+        // ===== 批量OCR识别 =====
+        async function performOCR(imageData) {
+            ocrResult.classList.remove('hidden');
+            batchStatus.textContent = '⏳ 正在识别中，请稍候...';
+            batchCheckBtn.disabled = true;
+
+            try {
+                const result = await Tesseract.recognize(imageData, 'eng', {
+                    logger: (m) => {
+                        if (m.status === 'recognizing text') {
+                            batchStatus.textContent = `⏳ 识别中... ${Math.round(m.progress * 100)}%`;
+                        }
+                    }
+                });
+
+                // 解析识别结果 - 按行分割，提取单词
+                const lines = result.data.text.split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.length > 0);
+
+                // 提取单词（取每行的第一个词，并清理标点）
+                const extracted = lines.map(line => {
+                    const words = line.split(/\s+/);
+                    let w = words[0] || line;
+                    w = w.replace(/[^a-zA-Z']/g, '');
+                    return w.toLowerCase();
+                }).filter(w => w.length > 0);
+
+                // 只取前N个（和词库数量匹配）
+                const count = Math.min(extracted.length, words.length);
+                ocrWords = extracted.slice(0, count);
+
+                // 如果识别出的单词少于词库数量，用空字符串补齐
+                while (ocrWords.length < words.length) {
+                    ocrWords.push('');
+                }
+
+                // 渲染识别结果列表
+                renderOCRList();
+
+                batchStatus.textContent = `✅ 识别完成！识别到 ${ocrWords.filter(w => w).length} 个单词，请确认后批改`;
+                batchCheckBtn.disabled = false;
+
+            } catch (err) {
+                batchStatus.textContent = '❌ 识别失败，请重试或手动输入';
+                console.warn('OCR Error:', err);
+                batchCheckBtn.disabled = false;
             }
-            if (words.length === 0) return;
+        }
 
-            const userAns = ocrText.value.trim();
-            if (!userAns) {
-                alert('请先识别或输入你的答案！');
-                return;
+        function renderOCRList() {
+            let html = '';
+            for (let i = 0; i < words.length; i++) {
+                const w = words[i];
+                const userAns = ocrWords[i] || '';
+                const isChecked = results[i] !== undefined;
+                const status = isChecked ? (results[i].correct ? '✅' : '❌') : '⏳';
+
+                html += `
+                    <div class="ocr-word-item">
+                        <span class="index">#${i+1}</span>
+                        <span style="font-weight:600;min-width:80px;color:#3d202a;">${w.en}</span>
+                        <span style="color:#b06a7a;font-size:13px;min-width:50px;">${w.zh}</span>
+                        <input type="text" id="ocrInput_${i}" value="${userAns}" placeholder="你的答案..." ${isChecked ? 'disabled' : ''}>
+                        <span class="status">${status}</span>
+                    </div>
+                `;
+            }
+            ocrWordList.innerHTML = html;
+
+            // 如果已经批改过，禁用所有输入
+            if (results.length === words.length && results.every(r => r !== undefined)) {
+                document.querySelectorAll('#ocrWordList input').forEach(inp => inp.disabled = true);
+                batchCheckBtn.disabled = true;
+                batchStatus.textContent = '✅ 所有单词已批改完成！查看下方成绩单';
+            }
+        }
+
+        // ===== 批量批改 =====
+        function batchCheck() {
+            // 收集所有输入
+            const inputs = document.querySelectorAll('#ocrWordList input');
+            let allFilled = true;
+
+            for (let i = 0; i < inputs.length; i++) {
+                const val = inputs[i].value.trim();
+                if (!val) allFilled = false;
+                ocrWords[i] = val;
             }
 
-            const w = words[currentIndex];
-            const isCorrect = userAns.toLowerCase() === w.en.toLowerCase();
-
-            // 保存结果
-            results[currentIndex] = {
-                en: w.en,
-                zh: w.zh,
-                userAnswer: userAns,
-                correct: isCorrect
-            };
-
-            if (!isCorrect) {
-                if (!errorWords.includes(w.en)) {
-                    errorWords.push(w.en);
+            if (!allFilled) {
+                if (!confirm('有部分单词未填写答案，确定要继续批改吗？（未填写的将计为错误）')) {
+                    return;
                 }
             }
 
-            // 显示对错
-            showCheckResult(isCorrect);
-            updateErrorList();
-            currentChecked = true;
-        }
+            // 逐个检查
+            let correct = 0;
+            results = [];
+            errorWords = [];
 
-        function showCheckResult(isCorrect) {
-            checkResult.classList.remove('hidden', 'correct', 'wrong');
-            if (isCorrect) {
-                checkResult.className = 'check-result correct';
-                checkResult.textContent = '✅ 完全正确！太棒了！ 🎉';
-            } else {
-                const w = words[currentIndex];
-                checkResult.className = 'check-result wrong';
-                checkResult.textContent = `❌ 写错了哦！正确答案是：${w.en}`;
+            for (let i = 0; i < words.length; i++) {
+                const w = words[i];
+                const userAns = ocrWords[i] || '';
+                const isCorrect = userAns.toLowerCase() === w.en.toLowerCase();
+
+                results[i] = {
+                    en: w.en,
+                    zh: w.zh,
+                    userAnswer: userAns || '(未作答)',
+                    correct: isCorrect
+                };
+
+                if (isCorrect) correct++;
+                if (!isCorrect && userAns) {
+                    if (!errorWords.includes(w.en)) {
+                        errorWords.push(w.en);
+                    }
+                }
             }
+
+            // 重新渲染列表显示状态
+            renderOCRList();
+            updateErrorList();
+
+            // 显示成绩单
+            showFinalResult();
+
+            batchStatus.textContent = `✅ 批改完成！正确 ${correct}/${words.length}`;
+            batchCheckBtn.disabled = true;
+
+            // 禁用所有输入
+            document.querySelectorAll('#ocrWordList input').forEach(inp => inp.disabled = true);
         }
 
         // ===== 显示最终结果 =====
@@ -947,26 +1084,23 @@
             let total = words.length;
             let detailHTML = '';
 
-            // 检查是否有未批改的
-            let hasUnchecked = false;
             for (let i = 0; i < total; i++) {
-                if (!results[i]) {
-                    hasUnchecked = true;
-                    const w = words[i];
-                    detailHTML += `
-                        <div class="result-item">
-                            <span>⚠️ <strong>${w.en}</strong> <span style="color:#b06a7a;font-size:14px;">${w.zh}</span></span>
-                            <span style="color:#d94f6a;">(未作答)</span>
-                        </div>
-                    `;
-                } else {
-                    const r = results[i];
+                const r = results[i];
+                if (r) {
                     if (r.correct) correct++;
                     const status = r.correct ? '✅' : '❌';
                     detailHTML += `
                         <div class="result-item">
                             <span>${status} <strong>${r.en}</strong> <span style="color:#b06a7a;font-size:14px;">${r.zh}</span></span>
                             <span style="color:${r.correct ? '#4a9a73' : '#d94f6a'};font-size:15px;">${r.userAnswer}</span>
+                        </div>
+                    `;
+                } else {
+                    const w = words[i];
+                    detailHTML += `
+                        <div class="result-item">
+                            <span>⚠️ <strong>${w.en}</strong> <span style="color:#b06a7a;font-size:14px;">${w.zh}</span></span>
+                            <span style="color:#d94f6a;">(未作答)</span>
                         </div>
                     `;
                 }
@@ -976,10 +1110,6 @@
             resultDetail.innerHTML = detailHTML;
             resultBox.classList.remove('hidden');
             updateErrorList();
-
-            if (hasUnchecked) {
-                resultStats.textContent += ' ⚠️ 有未作答的单词';
-            }
         }
 
         // ===== 错词本 =====
@@ -993,7 +1123,7 @@
             errorTags.innerHTML = unique.map(e => `<span class="error-tag">${e}</span>`).join(' ');
         }
 
-        // ===== 拍照 & OCR =====
+        // ===== 拍照 =====
         async function openCamera() {
             try {
                 if (stream) {
@@ -1059,30 +1189,6 @@
             fileInput.value = '';
         }
 
-        async function performOCR(imageData) {
-            ocrResult.classList.remove('hidden');
-            checkResult.classList.add('hidden');
-            ocrText.value = '⏳ 识别中...';
-            try {
-                const result = await Tesseract.recognize(imageData, 'eng', {
-                    logger: (m) => {}
-                });
-                const text = result.data.text.trim();
-                const lines = text.split('\n').filter(line => line.trim().length > 0);
-                let cleaned = '';
-                if (lines.length > 0) {
-                    const firstLine = lines[0].trim();
-                    const words = firstLine.split(/\s+/);
-                    cleaned = words[0] || firstLine;
-                    cleaned = cleaned.replace(/[.,!?;:"]/g, '');
-                }
-                ocrText.value = cleaned || '（未识别到文字，请手动输入）';
-            } catch (err) {
-                ocrText.value = '识别失败，请手动输入';
-                console.warn('OCR Error:', err);
-            }
-        }
-
         // ===== 添加单词 =====
         function addWord() {
             const en = newWordEn.value.trim();
@@ -1135,7 +1241,7 @@
             nextBtn.addEventListener('click', nextWord);
             checkBtn.addEventListener('click', showAnswer);
             resetBtn.addEventListener('click', resetQuizHandler);
-            submitAnswerBtn.addEventListener('click', submitAnswer);
+            batchCheckBtn.addEventListener('click', batchCheck);
 
             openCameraBtn.addEventListener('click', openCamera);
             captureBtn.addEventListener('click', capturePhoto);
@@ -1151,7 +1257,7 @@
         init();
         console.log('🌸 初二英语听写小助手已加载！');
         console.log('📚 词库数量:', words.length);
-        console.log('💡 听写模式：点击「提交并检查」立即查看对错！');
+        console.log('💡 流程：连续听写 → 统一拍照 → 逐个对照批改 → 查看成绩');
     </script>
 </body>
 </html>
