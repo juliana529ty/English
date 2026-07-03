@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js">
     </script>
     <style>
-        /* ===== 全局重置 & 粉色主题 ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -32,7 +31,7 @@
             -webkit-backdrop-filter: blur(12px);
             border-radius: 42px;
             padding: 24px 20px 32px;
-            box-shadow: 0 20px 60px rgba(255, 105, 135, 0.20), 0 8px 24px rgba(255, 150, 180, 0.12);
+            box-shadow: 0 20px 60px rgba(255, 105, 135, 0.20);
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
@@ -48,7 +47,6 @@
             font-size: 26px;
             font-weight: 700;
             color: #b3405a;
-            letter-spacing: 0.5px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -65,7 +63,6 @@
             font-size: 14px;
             font-weight: 600;
             color: #8e3d52;
-            box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.7);
         }
 
         .progress-area {
@@ -106,7 +103,6 @@
             transition: width 0.3s ease;
         }
 
-        /* ===== 单词卡片 - 听写模式隐藏文字 ===== */
         .word-card {
             background: white;
             border-radius: 32px;
@@ -136,7 +132,6 @@
             color: #b06a7a;
             margin-top: 6px;
             font-family: 'Times New Roman', serif;
-            letter-spacing: 0.5px;
         }
 
         .word-zh {
@@ -150,15 +145,14 @@
             display: inline-block;
         }
 
-        /* 听写模式下的隐藏状态 */
         .dictation-hidden .word-en {
-            display: none;
+            display: none !important;
         }
         .dictation-hidden .word-phonetic {
-            display: none;
+            display: none !important;
         }
         .dictation-hidden .word-zh {
-            display: none;
+            display: none !important;
         }
         .dictation-hidden .dictation-placeholder {
             display: block !important;
@@ -180,21 +174,19 @@
             color: #c08a9a;
         }
 
-        /* 学习模式显示全部 */
         .learn-mode .word-en {
-            display: block;
+            display: block !important;
         }
         .learn-mode .word-phonetic {
-            display: block;
+            display: block !important;
         }
         .learn-mode .word-zh {
-            display: inline-block;
+            display: inline-block !important;
         }
         .learn-mode .dictation-placeholder {
             display: none !important;
         }
 
-        /* ===== 控制按钮 ===== */
         .action-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -264,13 +256,12 @@
             grid-column: span 2;
         }
 
-        .btn:disabled {
-            opacity: 0.5;
-            transform: none;
-            pointer-events: none;
+        .btn-danger {
+            background: #d94f6a;
+            color: white;
+            border: none;
         }
 
-        /* ===== 模式切换 ===== */
         .mode-switch {
             display: flex;
             background: #fad8e0;
@@ -298,7 +289,6 @@
             border: 1px solid rgba(255, 180, 200, 0.3);
         }
 
-        /* ===== 相机区域 ===== */
         .camera-area {
             margin: 14px 0 12px;
             border-radius: 28px;
@@ -359,7 +349,25 @@
             margin-bottom: 4px;
         }
 
-        /* ===== 批改结果 ===== */
+        .check-result {
+            margin-top: 10px;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .check-result.correct {
+            background: #d4f0e0;
+            color: #2d7a55;
+        }
+
+        .check-result.wrong {
+            background: #fce4e8;
+            color: #c44a6a;
+        }
+
         .result-box {
             margin-top: 16px;
             background: white;
@@ -379,16 +387,6 @@
 
         .result-item:last-child {
             border-bottom: none;
-        }
-
-        .result-correct {
-            color: #4a9a73;
-            font-weight: 600;
-        }
-
-        .result-wrong {
-            color: #d94f6a;
-            font-weight: 600;
         }
 
         .result-stats {
@@ -423,7 +421,6 @@
             color: #6a3342;
         }
 
-        /* ===== 添加单词 ===== */
         .add-word-area {
             margin-top: 20px;
             background: rgba(255, 240, 245, 0.6);
@@ -464,9 +461,6 @@
             display: none !important;
         }
 
-        .mt-8 {
-            margin-top: 8px;
-        }
         .flex {
             display: flex;
             gap: 8px;
@@ -474,18 +468,25 @@
         .gap-6 {
             gap: 6px;
         }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .text-center {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
     <div class="app-container" id="app">
-        <!-- 头部 -->
         <div class="app-header">
             <div class="app-title"><span>🌸</span> 听写小助手</div>
             <span class="mode-badge" id="modeBadge">📖 学习模式</span>
         </div>
 
-        <!-- 进度 -->
         <div class="progress-area">
             <span class="counter">第 <strong id="currentNum">1</strong> / <span id="totalNum">0</span> 个</span>
             <div class="progress-bar-bg">
@@ -493,13 +494,11 @@
             </div>
         </div>
 
-        <!-- 模式切换 -->
         <div class="mode-switch">
             <button class="btn active" data-mode="learn" id="modeLearn">📚 学习模式</button>
             <button class="btn" data-mode="dictation" id="modeDictation">🎧 听写模式</button>
         </div>
 
-        <!-- 单词卡片 -->
         <div class="word-card learn-mode" id="wordCard">
             <div class="word-en" id="wordEn">beautiful</div>
             <div class="word-phonetic" id="wordPhonetic">/ˈbjuːtɪfl/</div>
@@ -507,11 +506,10 @@
             <div class="dictation-placeholder">
                 <span class="big-icon">🔊</span>
                 点击「朗读」听写<br>
-                <span class="hint">听完后在纸上写答案，然后拍照上传</span>
+                <span class="hint">听完后在纸上写答案</span>
             </div>
         </div>
 
-        <!-- 操作按钮 -->
         <div class="action-grid">
             <button class="btn btn-primary" id="speakBtn">🔊 朗读</button>
             <button class="btn btn-outline" id="nextBtn">⏭ 下一个</button>
@@ -537,22 +535,22 @@
             <div class="ocr-result hidden" id="ocrResult">
                 <label>✍️ OCR 识别结果（可手动编辑）</label>
                 <input type="text" id="ocrText" style="width:100%;padding:8px 12px;border-radius:40px;border:1px solid #f5b8c8;font-size:18px;background:#fef8fa;outline:none;" placeholder="识别或输入你的答案...">
+                <button class="btn btn-primary btn-full mt-8" id="submitAnswerBtn">✅ 提交并检查</button>
+                <div id="checkResult" class="check-result hidden"></div>
             </div>
         </div>
 
-        <!-- 批改 & 结果 -->
+        <!-- 批改结果 -->
         <div class="result-box hidden" id="resultBox">
             <div class="result-stats" id="resultStats">✅ 0 / 0 正确</div>
             <div id="resultDetail"></div>
         </div>
 
-        <!-- 错词本 -->
         <div class="error-list hidden" id="errorList">
             <h4>📕 错词本</h4>
             <div id="errorTags"></div>
         </div>
 
-        <!-- 添加单词 -->
         <div class="add-word-area">
             <div class="flex gap-6">
                 <input type="text" id="newWordEn" placeholder="英文单词 (如: excellent)">
@@ -565,9 +563,7 @@
     </div>
 
     <script>
-        // ================================================================
-        // 1. 词库（人教版初二上册）
-        // ================================================================
+        // ===== 词库 =====
         const DEFAULT_WORDS = [
             { en: 'anyone', zh: '任何人', phonetic: '/ˈeniwʌn/' },
             { en: 'anywhere', zh: '任何地方', phonetic: '/ˈeniweə(r)/' },
@@ -627,15 +623,14 @@
             { en: 'weekend', zh: '周末', phonetic: '/ˌwiːkˈend/' }
         ];
 
-        // ================================================================
-        // 2. 状态管理
-        // ================================================================
+        // ===== 状态 =====
         let words = [];
         let currentIndex = 0;
         let mode = 'learn';
-        let answered = false; // 是否已显示答案
+        let answered = false;
         let results = [];
         let errorWords = [];
+        let currentChecked = false; // 当前单词是否已批改
 
         const $ = id => document.getElementById(id);
         const wordEn = $('wordEn');
@@ -659,6 +654,8 @@
         const errorTags = $('errorTags');
         const ocrResult = $('ocrResult');
         const ocrText = $('ocrText');
+        const checkResult = $('checkResult');
+        const submitAnswerBtn = $('submitAnswerBtn');
         const cameraPlaceholder = $('cameraPlaceholder');
         const video = $('video');
         const capturedImage = $('capturedImage');
@@ -674,9 +671,7 @@
         let stream = null;
         let isCameraOpen = false;
 
-        // ================================================================
-        // 3. 初始化
-        // ================================================================
+        // ===== 初始化 =====
         function init() {
             const saved = localStorage.getItem('dictation_words');
             if (saved) {
@@ -700,16 +695,16 @@
             results = [];
             errorWords = [];
             answered = (mode === 'learn');
+            currentChecked = false;
             resultBox.classList.add('hidden');
             errorList.classList.add('hidden');
             ocrResult.classList.add('hidden');
+            checkResult.classList.add('hidden');
             ocrText.value = '';
             updateUI();
         }
 
-        // ================================================================
-        // 4. 渲染 UI（核心修复：听写模式隐藏所有文字）
-        // ================================================================
+        // ===== 渲染 =====
         function updateUI() {
             if (words.length === 0) {
                 wordEn.textContent = '🎉 词库为空';
@@ -723,27 +718,15 @@
             const idx = Math.min(currentIndex, words.length - 1);
             const w = words[idx];
 
-            // 先更新文字内容（无论显示与否）
             wordEn.textContent = w.en;
             wordPhonetic.textContent = w.phonetic || '';
             wordZh.textContent = w.zh;
 
-            // 根据模式切换卡片样式
             if (mode === 'learn') {
-                // 学习模式：显示所有内容
                 wordCard.className = 'word-card learn-mode';
-                wordEn.style.display = 'block';
-                wordPhonetic.style.display = 'block';
-                wordZh.style.display = 'inline-block';
                 answered = true;
             } else {
-                // 听写模式：默认全部隐藏
                 wordCard.className = 'word-card dictation-hidden';
-                wordEn.style.display = 'none';
-                wordPhonetic.style.display = 'none';
-                wordZh.style.display = 'none';
-
-                // 如果点击了"查看答案"，才显示
                 if (answered) {
                     wordEn.style.display = 'block';
                     wordPhonetic.style.display = 'block';
@@ -759,14 +742,24 @@
 
             modeBadge.textContent = mode === 'learn' ? '📖 学习模式' : '🎧 听写模式';
 
-            // 清除旧的 OCR 结果
-            ocrResult.classList.add('hidden');
-            ocrText.value = '';
+            // 如果当前单词已批改过，显示结果
+            if (results[idx]) {
+                const r = results[idx];
+                if (r.userAnswer) {
+                    ocrResult.classList.remove('hidden');
+                    ocrText.value = r.userAnswer;
+                    showCheckResult(r.correct);
+                }
+            } else {
+                // 未批改，清除显示
+                if (mode === 'dictation') {
+                    ocrResult.classList.add('hidden');
+                    checkResult.classList.add('hidden');
+                }
+            }
         }
 
-        // ================================================================
-        // 5. TTS 语音
-        // ================================================================
+        // ===== 语音 =====
         function speakWord() {
             if (words.length === 0) return;
             const w = words[Math.min(currentIndex, words.length - 1)];
@@ -843,36 +836,40 @@
             };
         }
 
-        // ================================================================
-        // 6. 核心逻辑
-        // ================================================================
+        // ===== 核心操作 =====
         function nextWord() {
             if (words.length === 0) return;
 
-            if (mode === 'dictation' && !answered) {
-                if (!confirm('当前单词还未查看答案，确定要跳过吗？')) {
+            // 如果当前单词有识别结果但未提交检查，自动保存
+            if (mode === 'dictation' && ocrText.value.trim() && !results[currentIndex]) {
+                if (confirm('当前单词的答案还未检查，要提交并检查吗？')) {
+                    submitAnswer();
                     return;
                 }
-            }
-
-            if (mode === 'dictation' && answered) {
-                saveCurrentResult();
             }
 
             if (currentIndex < words.length - 1) {
                 currentIndex++;
                 answered = (mode === 'learn');
                 if (mode === 'dictation') answered = false;
+                currentChecked = false;
                 updateUI();
-                resultBox.classList.add('hidden');
                 ocrResult.classList.add('hidden');
-                // 切换到听写模式时，自动朗读
+                checkResult.classList.add('hidden');
+                resultBox.classList.add('hidden');
+                // 自动朗读
                 if (mode === 'dictation') {
                     setTimeout(() => speakWord(), 300);
                 }
             } else {
-                if (mode === 'dictation' && answered) {
-                    saveCurrentResult();
+                // 已经是最后一个
+                if (mode === 'dictation') {
+                    // 检查是否所有单词都已批改
+                    const allChecked = words.every((_, i) => results[i]);
+                    if (!allChecked) {
+                        alert('还有单词未批改！请先提交所有答案再查看结果。');
+                        return;
+                    }
                 }
                 showFinalResult();
             }
@@ -895,53 +892,66 @@
             }
         }
 
-        // ================================================================
-        // 7. 批改
-        // ================================================================
-        function saveCurrentResult() {
-            if (words.length === 0 || currentIndex >= words.length) return;
-            const w = words[currentIndex];
-            const userAns = ocrText.value.trim() || '';
-            const isCorrect = userAns.toLowerCase() === w.en.toLowerCase();
-            results[currentIndex] = { en: w.en, zh: w.zh, userAnswer: userAns, correct: isCorrect };
-            if (!isCorrect && userAns) {
-                errorWords.push(w.en);
-            }
-            updateErrorList();
-        }
-
-        function checkAll() {
+        // ===== 提交答案 & 检查 =====
+        function submitAnswer() {
             if (mode === 'learn') {
-                alert('📖 学习模式下无需批改，切换到「听写模式」再试试吧！');
+                alert('📖 学习模式下无需检查，切换到「听写模式」再试试吧！');
                 return;
             }
-            if (currentIndex < words.length - 1) {
-                alert('还没听完所有单词呢！先完成全部听写再批改吧 📝');
+            if (words.length === 0) return;
+
+            const userAns = ocrText.value.trim();
+            if (!userAns) {
+                alert('请先识别或输入你的答案！');
                 return;
             }
-            if (answered) {
-                saveCurrentResult();
+
+            const w = words[currentIndex];
+            const isCorrect = userAns.toLowerCase() === w.en.toLowerCase();
+
+            // 保存结果
+            results[currentIndex] = {
+                en: w.en,
+                zh: w.zh,
+                userAnswer: userAns,
+                correct: isCorrect
+            };
+
+            if (!isCorrect) {
+                if (!errorWords.includes(w.en)) {
+                    errorWords.push(w.en);
+                }
             }
-            showFinalResult();
+
+            // 显示对错
+            showCheckResult(isCorrect);
+            updateErrorList();
+            currentChecked = true;
         }
 
+        function showCheckResult(isCorrect) {
+            checkResult.classList.remove('hidden', 'correct', 'wrong');
+            if (isCorrect) {
+                checkResult.className = 'check-result correct';
+                checkResult.textContent = '✅ 完全正确！太棒了！ 🎉';
+            } else {
+                const w = words[currentIndex];
+                checkResult.className = 'check-result wrong';
+                checkResult.textContent = `❌ 写错了哦！正确答案是：${w.en}`;
+            }
+        }
+
+        // ===== 显示最终结果 =====
         function showFinalResult() {
             let correct = 0;
             let total = words.length;
             let detailHTML = '';
+
+            // 检查是否有未批改的
+            let hasUnchecked = false;
             for (let i = 0; i < total; i++) {
-                const r = results[i];
-                if (r) {
-                    if (r.correct) correct++;
-                    const status = r.correct ? '✅' : '❌';
-                    const userShow = r.userAnswer || '(未作答)';
-                    detailHTML += `
-                        <div class="result-item">
-                            <span>${status} <strong>${r.en}</strong> <span style="color:#b06a7a;font-size:14px;">${r.zh}</span></span>
-                            <span style="color:${r.correct ? '#4a9a73' : '#d94f6a'};font-size:15px;">${userShow}</span>
-                        </div>
-                    `;
-                } else {
+                if (!results[i]) {
+                    hasUnchecked = true;
                     const w = words[i];
                     detailHTML += `
                         <div class="result-item">
@@ -949,14 +959,30 @@
                             <span style="color:#d94f6a;">(未作答)</span>
                         </div>
                     `;
+                } else {
+                    const r = results[i];
+                    if (r.correct) correct++;
+                    const status = r.correct ? '✅' : '❌';
+                    detailHTML += `
+                        <div class="result-item">
+                            <span>${status} <strong>${r.en}</strong> <span style="color:#b06a7a;font-size:14px;">${r.zh}</span></span>
+                            <span style="color:${r.correct ? '#4a9a73' : '#d94f6a'};font-size:15px;">${r.userAnswer}</span>
+                        </div>
+                    `;
                 }
             }
+
             resultStats.textContent = `✅ ${correct} / ${total} 正确 (${Math.round(correct/total*100)}%)`;
             resultDetail.innerHTML = detailHTML;
             resultBox.classList.remove('hidden');
             updateErrorList();
+
+            if (hasUnchecked) {
+                resultStats.textContent += ' ⚠️ 有未作答的单词';
+            }
         }
 
+        // ===== 错词本 =====
         function updateErrorList() {
             const unique = [...new Set(errorWords)];
             if (unique.length === 0) {
@@ -967,9 +993,7 @@
             errorTags.innerHTML = unique.map(e => `<span class="error-tag">${e}</span>`).join(' ');
         }
 
-        // ================================================================
-        // 8. 拍照 & OCR
-        // ================================================================
+        // ===== 拍照 & OCR =====
         async function openCamera() {
             try {
                 if (stream) {
@@ -1037,6 +1061,7 @@
 
         async function performOCR(imageData) {
             ocrResult.classList.remove('hidden');
+            checkResult.classList.add('hidden');
             ocrText.value = '⏳ 识别中...';
             try {
                 const result = await Tesseract.recognize(imageData, 'eng', {
@@ -1058,9 +1083,7 @@
             }
         }
 
-        // ================================================================
-        // 9. 添加单词
-        // ================================================================
+        // ===== 添加单词 =====
         function addWord() {
             const en = newWordEn.value.trim();
             const zh = newWordZh.value.trim();
@@ -1087,9 +1110,7 @@
             }
         }
 
-        // ================================================================
-        // 10. 事件绑定
-        // ================================================================
+        // ===== 事件绑定 =====
         function bindEvents() {
             modeLearn.addEventListener('click', () => {
                 mode = 'learn';
@@ -1107,7 +1128,6 @@
                 modeLearn.classList.remove('active');
                 resetQuiz();
                 updateUI();
-                // 进入听写模式后自动朗读第一个
                 setTimeout(() => speakWord(), 500);
             });
 
@@ -1115,6 +1135,7 @@
             nextBtn.addEventListener('click', nextWord);
             checkBtn.addEventListener('click', showAnswer);
             resetBtn.addEventListener('click', resetQuizHandler);
+            submitAnswerBtn.addEventListener('click', submitAnswer);
 
             openCameraBtn.addEventListener('click', openCamera);
             captureBtn.addEventListener('click', capturePhoto);
@@ -1126,13 +1147,11 @@
             newWordZh.addEventListener('keydown', (e) => { if (e.key === 'Enter') addWord(); });
         }
 
-        // ================================================================
-        // 启动
-        // ================================================================
+        // ===== 启动 =====
         init();
         console.log('🌸 初二英语听写小助手已加载！');
         console.log('📚 词库数量:', words.length);
-        console.log('💡 切换到「听写模式」：不显示任何文字，纯听力练习！');
+        console.log('💡 听写模式：点击「提交并检查」立即查看对错！');
     </script>
 </body>
 </html>
